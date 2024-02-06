@@ -4,6 +4,7 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2023.4.3"
     id "idea"
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
 }
 
 def javaVersion = JavaVersion.VERSION_11
@@ -71,6 +72,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.junit.jupiter:junit-jupiter-params"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 test{
@@ -112,5 +114,18 @@ idea {
         downloadSources = true
         // Exclude the .vscode directory from indexing and search
         excludeDirs+=file(".vscode" )
+    }
+}
+repositories {
+    mavenCentral()
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
