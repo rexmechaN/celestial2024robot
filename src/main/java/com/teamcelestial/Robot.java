@@ -126,7 +126,7 @@ public class Robot extends TimedRobot
 
         if(joystick.getRawButton(1) || reverse) {
             if(!shooterStarted) {
-                shooter.start(3.95, 0.0, 23.0);
+                shooter.start(5.3, 0.70, 31.0);
                 shooterStarted = true;
             }
             //setMotor(reverse ? -rpmTarget : rpmTarget);

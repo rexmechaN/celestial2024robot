@@ -2,6 +2,7 @@ package com.teamcelestial
 
 import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkMaxPIDController
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import java.lang.Double.max
 import java.lang.Double.min
 import kotlin.math.*
@@ -9,15 +10,20 @@ import kotlin.math.*
 class Shooter(val pidControllers: List<SparkMaxPIDController>) {
     val flywheelRadius = 0.0504
     var targetRpm = 0.0
+    var targetTheta = 0.0
     var startTime = 0L
     var reference = -1.0
     var lastRpmPublish = 0L
     val ballWeight = 0.230
+    val defaultRpm = 5000.0
     fun start(distance: Double, height: Double, thetaInDegrees: Double) {
         startTime = System.currentTimeMillis()
-        targetRpm = min(max((calculateRpm(distance, height, thetaInDegrees) * 1.1).also {
+        targetRpm = 5000.0/*min(max((calculateRpm(distance, height, thetaInDegrees) * 1.1).also {
             println("Calculated RPM: $it")
-        }, 0.0), 5500.0)
+        }, 0.0), 5500.0)*/
+        targetTheta = calculateThetaForDistance(distance, height, targetRpm).also {
+            println("Calculated Theta: $it")
+        }
     }
 
     fun stop() {
@@ -36,6 +42,7 @@ class Shooter(val pidControllers: List<SparkMaxPIDController>) {
         if (lastRpmPublish + 500 < System.currentTimeMillis()) {
             lastRpmPublish = System.currentTimeMillis()
             println("Target RPM: $targetRpm")
+            println("Target Theta: $targetRpm")
         }
     }
 
@@ -66,6 +73,14 @@ class Shooter(val pidControllers: List<SparkMaxPIDController>) {
         pidControllers.forEach {
             it.setReference(rpm, CANSparkMax.ControlType.kVelocity)
         }
+    }
+
+    fun calculateThetaForDistance(distance: Double, height: Double, rpm: Double): Double {
+        val g = 9.81
+        val v = defaultRpm * 2 * Math.PI / 60
+        TODO()
+        val theta = atan((g * distance.pow(2) + height * v.pow(2)))
+        return Math.toDegrees(theta)
     }
 
     fun calculateRpm(distance: Double, height: Double, thetaInDegrees: Double): Double {
