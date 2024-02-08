@@ -4,10 +4,7 @@ import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkMaxPIDController
 import java.lang.Double.max
 import java.lang.Double.min
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sqrt
-import kotlin.math.tan
+import kotlin.math.*
 
 class Shooter(val pidControllers: List<SparkMaxPIDController>) {
     val flywheelRadius = 0.0504
@@ -46,6 +43,22 @@ class Shooter(val pidControllers: List<SparkMaxPIDController>) {
         return (speed.pow(2) * 0.01208955 / ballWeight) * time
     }
 
+    private fun calculateRpmForVelocity(velocity: Double): Double {
+        return calculateRpmForEnergyTarget(0.5 * ballWeight * velocity.pow(2))
+    }
+
+    private val churroInertia = 4 * 0.0001
+    private val inertiaDisc1 = 2.125 * 0.0001
+    private val inertiaDisc2 = 1.5 * 0.0001
+
+    private val totalInertia = (2 * churroInertia) + (2 * inertiaDisc1) + (2 * inertiaDisc2)
+
+    private val rateOfRpmRetention = 0.8
+    private fun calculateRpmForEnergyTarget(energyTarget: Double): Double {
+        // Energy is not fully transferred from the flywheel, rateOfRpmRetention is the rate of RPM conserved
+        return sqrt((2 * energyTarget) / (totalInertia * (1 - rateOfRpmRetention))) * 60 / (2 * Math.PI)
+    }
+
     fun setMotor(rpm: Double) {
         if (reference == rpm) return
         reference = rpm
@@ -61,6 +74,6 @@ class Shooter(val pidControllers: List<SparkMaxPIDController>) {
         val v =  (distance / cos(theta)) * sqrt((g) / (2 * (distance * tan(theta) - height)))
         val t = distance / (v * cos(theta))
         // Flywheel speed is not equal to ring speed since the contact happens for a short time
-        return ((v + calculateAirResistanceMinusV(v, t)) / (2 * Math.PI * flywheelRadius)) * 60
+        return calculateRpmForVelocity(v + calculateAirResistanceMinusV(v, t))
     }
 }

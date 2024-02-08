@@ -2,5 +2,5 @@ package com.teamcelestial
 
 fun main() {
     val shooter = Shooter(listOf())
-    shooter.start(15.0, 4.0, 30.0)
+    shooter.start(4.0, 0.80, 22.0)
 }
