@@ -1,9 +1,8 @@
 package com.teamcelestial;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.REVLibError;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.Joystick;
@@ -28,8 +27,8 @@ public class Robot extends TimedRobot
 
     Joystick joystick = new Joystick(0);
 
-    private final CANSparkMax leftCim = new CANSparkMax(15, CANSparkMaxLowLevel.MotorType.kBrushless);
-    private final CANSparkMax rightCim = new CANSparkMax(16, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private final CANSparkMax leftCim = new CANSparkMax(15, CANSparkMax.MotorType.kBrushless);
+    private final CANSparkMax rightCim = new CANSparkMax(16, CANSparkMax.MotorType.kBrushless);
 
     private final NetworkTableInstance networkTable = NetworkTableInstance.getDefault();
     private final DoubleTopic desiredMotorSpeedTopic = networkTable.getDoubleTopic("/datatable/motorSpeed");
@@ -39,8 +38,8 @@ public class Robot extends TimedRobot
     private long lastRpmPublish = 0;
     private double multiplier = 0.0;
 
-    private SparkMaxPIDController leftPid;
-    private SparkMaxPIDController rightPid;
+    private SparkPIDController leftPid;
+    private SparkPIDController rightPid;
 
     private double rpmTarget = 0;
 
@@ -55,7 +54,7 @@ public class Robot extends TimedRobot
         leftPid = leftCim.getPIDController();
         rightPid = rightCim.getPIDController();
 
-        List<SparkMaxPIDController> controllerList = new ArrayList<>();
+        List<SparkPIDController> controllerList = new ArrayList<>();
         controllerList.add(leftPid);
         controllerList.add(rightPid);
 
@@ -65,7 +64,7 @@ public class Robot extends TimedRobot
         setupPid(rightPid);
     }
 
-    void setupPid(SparkMaxPIDController controller) {
+    void setupPid(SparkPIDController controller) {
         System.out.println("Motor PID:");
         System.out.println("P: " + controller.getP());
         System.out.println("I: " + controller.getI());
@@ -126,7 +125,7 @@ public class Robot extends TimedRobot
 
         if(joystick.getRawButton(1) || reverse) {
             if(!shooterStarted) {
-                shooter.start(5.3, 0.70, 31.0);
+                shooter.start(5.3, 0.70);
                 shooterStarted = true;
             }
             //setMotor(reverse ? -rpmTarget : rpmTarget);
