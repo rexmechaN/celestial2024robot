@@ -3,9 +3,9 @@ package com.teamcelestial.math.solver
 import kotlin.math.absoluteValue
 
 class NumericalSolver(
-    val range: IntRange,
-    val step: Double,
-    val test: ((Double) -> Double),
+    private val range: IntRange,
+    private val step: Double,
+    private val test: ((Double) -> Double),
 ) {
     fun solveFor(target: Double): SolverResult {
         var current: Double = range.first.toDouble()
