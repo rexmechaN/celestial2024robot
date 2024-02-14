@@ -1,4 +1,4 @@
-package com.teamcelestial
+package com.teamcelestial.vision
 
 import edu.wpi.first.math.geometry.Transform3d
 import org.photonvision.PhotonCamera
