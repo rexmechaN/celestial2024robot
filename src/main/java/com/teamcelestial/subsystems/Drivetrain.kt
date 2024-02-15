@@ -30,7 +30,7 @@ object Drivetrain: SubsystemBase() {
 
     fun drive(x: Double, y: Double) {
         val steer = x * 1.0 + if (x<0) -(abs(y) * 0.2) else abs(y) * 0.2
-        robotDrive.arcadeDrive(y * 0.6, steer)
+        robotDrive.arcadeDrive(y, steer)
         leftSlave.follow(leftMaster)
         rightSlave.follow(rightMaster)
     }

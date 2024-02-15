@@ -2,21 +2,22 @@ package com.teamcelestial.commands
 
 import edu.wpi.first.wpilibj2.command.Command
 import com.teamcelestial.subsystems.Drivetrain
-import com.teamcelestial.util.JoystickObject
 
-class DriveRobotCommand : Command() {
-    private val drivetrain = Drivetrain
+class DriveRobotCommand(
+    private val xSupplier: () -> Double,
+    private val ySupplier: () -> Double
+) : Command() {
 
     init {
-        addRequirements(drivetrain)
+        addRequirements(Drivetrain)
     }
 
     override fun initialize() {}
 
     override fun execute() {
-        val x = JoystickObject.singleton.z
-        val y = JoystickObject.singleton.y
-        drivetrain.drive(x, y)
+        val x = xSupplier()
+        val y = ySupplier()
+        Drivetrain.drive(x, y)
     }
 
     override fun isFinished(): Boolean {

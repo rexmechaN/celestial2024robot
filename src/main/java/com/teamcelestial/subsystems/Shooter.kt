@@ -4,7 +4,6 @@ import com.revrobotics.CANSparkBase
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkPIDController
-import com.teamcelestial.util.JoystickObject
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 import kotlin.math.*
@@ -32,6 +31,11 @@ object Shooter: SubsystemBase() {
 
     private var shooterStarted = false
 
+    fun setMotors(power: Double) {
+        leftCim.set(power)
+        rightCim.set(power)
+    }
+
     fun tick() {
         trackTriggers()
 
@@ -52,7 +56,7 @@ object Shooter: SubsystemBase() {
     }
 
     private fun trackTriggers() {
-        if (JoystickObject.singleton.getRawButton(1)) {
+        /*if (JoystickObject.singleton.getRawButton(1)) {
             if (!shooterStarted) {
                 start(2.65, 0.7)
                 shooterStarted = true
@@ -62,7 +66,7 @@ object Shooter: SubsystemBase() {
                 stop()
                 shooterStarted = false
             }
-        }
+        }*/
     }
 
     private fun start(distance: Double, height: Double) {
