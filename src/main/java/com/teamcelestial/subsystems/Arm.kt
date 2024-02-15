@@ -37,6 +37,8 @@ class Arm(
 
     private val encoder = CANcoder(17)
 
+    private var lastLog: Long = 0L
+
     init {
         listOf(pValue, iValue, dValue).forEach {
             it.setListener { _ -> updatePIDController() }
@@ -56,6 +58,13 @@ class Arm(
         updateTheta()
         updateOutput()
         updateMotors()
+        if(System.currentTimeMillis() - lastLog > 1000) {
+            lastLog = System.currentTimeMillis()
+            println("====================================")
+            println("Arm.Theta: ${state.theta}")
+            println("Arm.ThetaTarget: ${state.theta}")
+            println("Arm.Output: ${state.output}")
+        }
     }
 
     /**
