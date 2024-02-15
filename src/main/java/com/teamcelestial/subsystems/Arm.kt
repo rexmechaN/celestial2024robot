@@ -11,6 +11,7 @@ import com.teamcelestial.system.arm.ArmState
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.pow
 
 class Arm(
     private val armPresetData: ArmPresetData,
@@ -22,9 +23,9 @@ class Arm(
         data = HashMap()
     )
 
-    private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, BlindRotatorConstant.kP)
-    private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, BlindRotatorConstant.kI)
-    private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, BlindRotatorConstant.kD)
+    private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 20.0)
+    private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 20.0)
+    private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, 20.0)
 
     private val leftArm = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
     private val rightArm = CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless)
@@ -93,7 +94,7 @@ class Arm(
     }
 
     private fun updatePIDController() {
-        pidController = PIDController(pValue.value, iValue.value, dValue.value)
+        pidController = PIDController(10.0.pow(-1.0 * pValue.value), 10.0.pow(-1.0 * iValue.value), 10.0.pow(-1.0 * dValue.value))
         pidController.setpoint = state.targetTheta
     }
 }
