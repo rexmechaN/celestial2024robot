@@ -50,8 +50,8 @@ class Arm(
     }
 
     private fun setMotors(power: Double) {
-        leftArm.set(leftLimiter.calculate(-power))
-        rightArm.set(rightLimiter.calculate(power))
+        leftArm.set(leftLimiter.calculate(power))
+        rightArm.set(rightLimiter.calculate(-power))
     }
 
     private fun tick() {
