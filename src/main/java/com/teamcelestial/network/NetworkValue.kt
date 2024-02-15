@@ -27,6 +27,7 @@ class NetworkValue<T>(
         networkTableInstance.addListener(subscription, EnumSet.of(NetworkTableEvent.Kind.kValueAll)) {
             @Suppress("UNCHECKED_CAST")
             (it.valueData.value.value as T).let { value ->
+                println("Updated NetworkValue $valueId to $value")
                 valReference.set(value)
                 listener?.invoke(value)
             }
