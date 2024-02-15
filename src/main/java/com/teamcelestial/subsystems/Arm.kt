@@ -38,9 +38,6 @@ class Arm(
     private val encoder = CANcoder(17)
 
     init {
-        val pValue: NetworkValue<Double> = NetworkValue("P", NetworkValueType.kDouble, 0.0)
-        val iValue: NetworkValue<Double> = NetworkValue("I", NetworkValueType.kDouble, 0.0)
-        val dValue: NetworkValue<Double> = NetworkValue("D", NetworkValueType.kDouble, 0.0)
         listOf(pValue, iValue, dValue).forEach {
             it.setListener { _ -> updatePIDController() }
         }
