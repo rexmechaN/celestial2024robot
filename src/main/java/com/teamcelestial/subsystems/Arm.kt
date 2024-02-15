@@ -10,7 +10,6 @@ import com.teamcelestial.system.arm.ArmPresetData
 import com.teamcelestial.system.arm.ArmState
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
-import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 class Arm(
@@ -35,7 +34,7 @@ class Arm(
     private val leftLimiter = SlewRateLimiter(0.3)
     private val rightLimiter = SlewRateLimiter(0.3)
 
-    private lateinit var encoder: CANcoder //TODO: Add encoder
+    private val encoder = CANcoder(17)
 
     init {
         val pValue: NetworkValue<Double> = NetworkValue("P", NetworkValueType.kDouble, 0.0)

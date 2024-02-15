@@ -1,6 +1,8 @@
 package com.teamcelestial
 
 import com.teamcelestial.commands.*
+import com.teamcelestial.network.NetworkValue
+import com.teamcelestial.network.NetworkValueType
 import com.teamcelestial.subsystems.Drivetrain
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj2.command.RepeatCommand

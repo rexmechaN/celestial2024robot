@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 
 object Robot : TimedRobot() {
-    private val encoder = CANcoder(17)
 
     override fun robotInit() {
         RobotContainer
@@ -21,9 +20,7 @@ object Robot : TimedRobot() {
 
     override fun teleopInit() {}
 
-    override fun teleopPeriodic() {
-        println((encoder.absolutePosition.value * 360) - 50)
-    }
+    override fun teleopPeriodic() {}
 
     override fun disabledInit() {}
 
