@@ -1,19 +1,40 @@
 package com.teamcelestial.subsystems
 
+import com.ctre.phoenix6.hardware.CANcoder
+import com.revrobotics.CANSparkBase
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
-import com.teamcelestial.util.CelestialSubsystem
+import com.revrobotics.SparkPIDController
 import com.teamcelestial.util.JoystickObject
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 
-object Arm: CelestialSubsystem() {
+object Arm: SubsystemBase() {
     private val leftArm = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
     private val rightArm = CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless)
+
+    private val pid: PIDController
+
+    private val canCoder = CANcoder(0)
 
     private val leftLimiter = SlewRateLimiter(0.3)
     private val rightLimiter = SlewRateLimiter(0.3)
 
-    override fun tick() {
+    init {
+        setupPid(pid)
+    }
+
+    fun setMotors(power: Double) {
+        leftArm.set(power)
+        rightArm.set(-power)
+    }
+
+    fun setSetpoint(angle: Double) {
+        canCoder.absolutePosition
+    }
+
+    fun tick() {
         val value =
             if(JoystickObject.singleton.getRawButton(9))
                 0.2
@@ -21,7 +42,18 @@ object Arm: CelestialSubsystem() {
                 -0.2
             else 0.0
 
-        leftArm.set(leftLimiter.calculate(value))
-        rightArm.set(rightLimiter.calculate(-value))
+    }
+
+    private fun setupPid(controller: PIDController) {
+        val kP = 0.000000029
+        val kI = 0.000000000
+        val kD = 0.0
+        val kIz = 0.0
+        val kFF = 0.0
+        controller.p = kP
+        controller.i = kI
+        controller.d = kD
+        controller.setIZone(kIz)
+        controller.calculate(0.0, 0.0)
     }
 }

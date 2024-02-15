@@ -4,11 +4,12 @@ import com.revrobotics.CANSparkBase
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkPIDController
-import com.teamcelestial.util.CelestialSubsystem
 import com.teamcelestial.util.JoystickObject
+import edu.wpi.first.wpilibj2.command.SubsystemBase
+
 import kotlin.math.*
 
-object Shooter: CelestialSubsystem() {
+object Shooter: SubsystemBase() {
     private val leftCim = CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushless)
     private val rightCim = CANSparkMax(16, CANSparkLowLevel.MotorType.kBrushless)
 
@@ -31,7 +32,7 @@ object Shooter: CelestialSubsystem() {
 
     private var shooterStarted = false
 
-    override fun tick() {
+    fun tick() {
         trackTriggers()
 
         if (lastRpmPublish + 500 < System.currentTimeMillis()) {
