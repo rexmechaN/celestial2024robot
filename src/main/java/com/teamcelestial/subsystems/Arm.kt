@@ -63,7 +63,7 @@ class Arm(
             println("====================================")
             println("Arm.PID: ${pidController.p}, ${pidController.i}, ${pidController.d}")
             println("Arm.Theta: ${state.theta}")
-            println("Arm.ThetaTarget: ${state.theta}")
+            println("Arm.ThetaTarget: ${state.targetTheta}")
             println("Arm.Output: ${state.output}")
         }
     }
