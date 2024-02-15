@@ -20,7 +20,10 @@ class NetworkValue<T>(
     private val valReference = AtomicReference<T>()
 
     init {
-        if(initialValue != null) publisher.setValue(initialValue)
+        if(initialValue != null) {
+            publisher.setValue(initialValue)
+            valReference.set(initialValue)
+        }
         networkTableInstance.addListener(subscription, EnumSet.of(NetworkTableEvent.Kind.kValueAll)) {
             @Suppress("UNCHECKED_CAST")
             (it.valueData.value.value as T).let { value ->
