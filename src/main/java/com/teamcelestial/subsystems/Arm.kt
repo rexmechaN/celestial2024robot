@@ -61,6 +61,7 @@ class Arm(
         if(System.currentTimeMillis() - lastLog > 1000) {
             lastLog = System.currentTimeMillis()
             println("====================================")
+            println("Arm.PID: ${pidController.p}, ${pidController.i}, ${pidController.d}")
             println("Arm.Theta: ${state.theta}")
             println("Arm.ThetaTarget: ${state.theta}")
             println("Arm.Output: ${state.output}")
