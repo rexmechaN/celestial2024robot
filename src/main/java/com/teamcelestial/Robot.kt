@@ -1,6 +1,5 @@
 package com.teamcelestial
 
-import com.ctre.phoenix6.hardware.CANcoder
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 

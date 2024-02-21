@@ -5,8 +5,8 @@ import com.teamcelestial.system.arm.ArmPresetData
 import edu.wpi.first.wpilibj2.command.Command
 
 private val armPreset = ArmPresetData(
-    defaultTheta = 90.0, //TODO: The default theta, target angle when robot starts
-    absZeroPointDegrees = -0.09 * 360.0 //TODO: The absolute zero point of the arm in degrees. Must be parallel to ground.
+    defaultTheta = 80.0, //TODO: The default theta, target angle when robot starts
+    absZeroPointDegrees = -0.001 * 360.0 //TODO: The absolute zero point of the arm in degrees. Must be parallel to ground.
 )
 
 val arm = Arm(
