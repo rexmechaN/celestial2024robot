@@ -57,9 +57,13 @@ class Arm(
     }
 
     private fun tick() {
+        val c1 = System.currentTimeMillis()
         updateTheta()
+        val c2 = System.currentTimeMillis()
         updateOutput()
+        val c3 = System.currentTimeMillis()
         updateMotors()
+        val c4 = System.currentTimeMillis()
         if(System.currentTimeMillis() - lastLog > 1000) {
             lastLog = System.currentTimeMillis()
             println("====================================")
@@ -67,6 +71,11 @@ class Arm(
             println("Arm.Theta: ${state.theta}")
             println("Arm.ThetaTarget: ${state.targetTheta}")
             println("Arm.Output: ${state.output}")
+            val c5 = System.currentTimeMillis()
+            println("Arm.UpdateThetaTime: ${c2 - c1}")
+            println("Arm.UpdateOutputTime: ${c3 - c2}")
+            println("Arm.UpdateMotorsTime: ${c4 - c3}")
+            println("Arm.LogTime: ${c5 - c4}")
         }
     }
 
