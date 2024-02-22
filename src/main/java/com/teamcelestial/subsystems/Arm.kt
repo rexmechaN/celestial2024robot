@@ -94,7 +94,7 @@ class Arm(
         state = if(state.theta > 195)
             state.copy(output = 0.0)
         else
-            state.copy(output = pidController.calculate(state.theta))
+            state.copy(output = 0.2/*pidController.calculate(state.theta)*/)
     }
 
     private fun updateTarget() {
