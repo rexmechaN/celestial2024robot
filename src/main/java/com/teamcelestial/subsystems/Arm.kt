@@ -1,5 +1,7 @@
 package com.teamcelestial.subsystems
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration
+import com.ctre.phoenix6.configs.MagnetSensorConfigs
 import com.ctre.phoenix6.hardware.CANcoder
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
