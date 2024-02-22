@@ -91,7 +91,7 @@ class Arm(
     }
 
     private fun updateOutput() {
-        state = if(state.theta > 105)
+        state = if(state.theta > 195)
             state.copy(output = 0.0)
         else
             state.copy(output = pidController.calculate(state.theta))
