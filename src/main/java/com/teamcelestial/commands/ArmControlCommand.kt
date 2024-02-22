@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command
 
 private val armPreset = ArmPresetData(
     defaultTheta = 90.0, //TODO: The default theta, target angle when robot starts
-    absZeroPointDegrees = 0.150 * 360.0 //TODO: The absolute zero point of the arm in degrees. Must be parallel to ground.
+    absZeroPointDegrees = -0.195 * 360.0 //TODO: The absolute zero point of the arm in degrees. Must be parallel to ground.
 )
 
 val arm = Arm(
