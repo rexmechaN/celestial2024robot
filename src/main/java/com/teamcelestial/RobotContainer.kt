@@ -12,7 +12,7 @@ object RobotContainer {
     private val joystick = Joystick(0)
 
     init {
-        Drivetrain.defaultCommand = DriveRobotCommand(
+        /*Drivetrain.defaultCommand = DriveRobotCommand(
             { joystick.z * 0.3 },
             { joystick.y * 0.3 }
         )
@@ -39,6 +39,6 @@ object RobotContainer {
 
         JoystickButton(joystick, 12).whileTrue(
             RepeatCommand( RotatorControlCommand { 0.1 } )
-        )
+        )*/
     }
 }

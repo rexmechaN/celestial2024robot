@@ -11,7 +11,7 @@ object Robot : TimedRobot() {
     }
 
     override fun robotPeriodic() {
-        CommandScheduler.getInstance().run()
+        //CommandScheduler.getInstance().run()
     }
 
     override fun autonomousInit() {}
