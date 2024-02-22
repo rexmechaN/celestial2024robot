@@ -108,7 +108,9 @@ class Arm(
 
 
     private fun transformEncoderOutputToDegrees(encoderOutput: Double): Double {
-        return (encoderOutput * 360.0 - armPresetData.absZeroPointDegrees)
+        return (encoderOutput * 360.0 - armPresetData.absZeroPointDegrees).let {
+            if(it < 0) it + 360.0 else it
+        }
     }
 
     private fun updatePIDController() {
