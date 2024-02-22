@@ -50,8 +50,8 @@ class Arm(
     }
 
     private fun setMotors(power: Double) {
-        leftArm.set(leftLimiter.calculate(-power))
-        rightArm.set(rightLimiter.calculate(power))
+        leftArm.set(-power)
+        rightArm.set(power)
     }
 
     private fun tick() {
@@ -75,7 +75,15 @@ class Arm(
     fun setTargetTheta(theta: Double): Boolean {
         state = state.copy(targetTheta = theta)
         updateTarget()
+        resetIntegrator()
         return true
+    }
+
+    /**
+     * Reset PID controller integrator
+     */
+    fun resetIntegrator() {
+        pidController.reset()
     }
 
     private fun updateMotors() {
@@ -83,13 +91,14 @@ class Arm(
     }
 
     private fun updateOutput() {
-        state = if(state.theta > 100)
+        state = if(state.theta > 105)
             state.copy(output = 0.0)
         else
             state.copy(output = pidController.calculate(state.theta))
     }
 
     private fun updateTarget() {
+        pidController.reset()
         pidController.setpoint = state.targetTheta
     }
 

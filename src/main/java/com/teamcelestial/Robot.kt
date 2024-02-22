@@ -1,5 +1,6 @@
 package com.teamcelestial
 
+import com.teamcelestial.commands.arm
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 
@@ -17,7 +18,9 @@ object Robot : TimedRobot() {
 
     override fun autonomousPeriodic() {}
 
-    override fun teleopInit() {}
+    override fun teleopInit() {
+        arm.resetIntegrator()
+    }
 
     override fun teleopPeriodic() {}
 
