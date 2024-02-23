@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 object Robot : TimedRobot() {
 
     private val armPreset = ArmPresetData(
-        defaultTheta = 150.0, //TODO: The default theta, target angle when robot starts
+        defaultTheta = 135.0, //TODO: The default theta, target angle when robot starts
         absZeroPointDegrees = 0.0 //TODO: The absolute zero point of the arm in degrees. Must be parallel to ground.
     )
 
@@ -21,7 +21,7 @@ object Robot : TimedRobot() {
     }
 
     override fun robotPeriodic() {
-        //CommandScheduler.getInstance().run()
+        CommandScheduler.getInstance().run()
     }
 
     override fun autonomousInit() {}
