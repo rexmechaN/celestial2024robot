@@ -57,6 +57,7 @@ class Arm(
     }
 
     private fun tick() {
+        if(true) return //TODO: Remove after test
         val c1 = System.currentTimeMillis()
         updateTheta()
         val c2 = System.currentTimeMillis()
