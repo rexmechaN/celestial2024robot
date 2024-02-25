@@ -41,6 +41,7 @@ object Robot : TimedRobot() {
             )
         )
         rotator.setTargetTheta(90.0)
+        arm.setTargetTheta(90.0)
     }
 
     override fun robotPeriodic() {
