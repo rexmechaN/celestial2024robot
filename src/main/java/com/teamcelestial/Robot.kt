@@ -64,18 +64,17 @@ object Robot : TimedRobot() {
     }
 
     override fun teleopPeriodic() {
-        joystick.getRawButton(7).takeIf {
-            it && !joystickButtonLatch
-        }?.also {
+        val button = joystick.getRawButton(7)
+        val switchMode = button && !joystickButtonLatch
+        if(switchMode) {
             mode = !mode
             if(mode) {
                 arm.setTargetTheta(100.0)
             } else {
                 arm.setTargetTheta(180.0)
             }
-        }.also {
-            joystickButtonLatch = it ?: false
         }
+        joystickButtonLatch = button
     }
 
     override fun disabledInit() {}
