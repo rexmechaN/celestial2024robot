@@ -92,7 +92,7 @@ class Rotator(
     }
 
     private fun updateOutput() {
-        state = if(state.theta > 195)
+        state = if(state.theta > 70)
             state.copy(output = 0.0)
         else
             state.copy(output = pidController.calculate(state.theta))
