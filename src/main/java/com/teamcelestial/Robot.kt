@@ -20,7 +20,7 @@ object Robot : TimedRobot() {
 
     private val rotatorPreset = RotatorPresetData(
         defaultTheta = 90.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = 0.29 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
+        absZeroPointDegrees = 102.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
     )
 
     private val rotator = Rotator(
