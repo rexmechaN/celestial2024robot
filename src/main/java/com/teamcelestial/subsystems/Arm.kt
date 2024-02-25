@@ -39,7 +39,7 @@ class Arm(
     private val leftArm = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
     private val rightArm = CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless)
 
-    private var pidController: PIDController = PIDController(pValue.value, pValue.value, iValue.value)
+    private var pidController: PIDController = PIDController(0.0,0.0,0.0)
 
     private val leftLimiter = SlewRateLimiter(0.3)
     private val rightLimiter = SlewRateLimiter(0.3)
@@ -49,6 +49,7 @@ class Arm(
     private var lastLog: Long = 0L
 
     init {
+        updatePIDController()
         listOf(pValue, iValue, dValue).forEach {
             it.setListener { _ -> updatePIDController() }
         }

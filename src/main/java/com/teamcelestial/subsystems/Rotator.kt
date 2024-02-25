@@ -40,13 +40,14 @@ class Rotator(
     private var iValue: NetworkValue<Double> = NetworkValue("rot_I", NetworkValueType.kDouble, 4.0)
     private var dValue: NetworkValue<Double> = NetworkValue("rot_D", NetworkValueType.kDouble, 5.0)
 
-    private var pidController: PIDController = PIDController(pValue.value, pValue.value, iValue.value)
+    private var pidController: PIDController = PIDController(0.0,0.0,0.0)
 
     private val encoder = CANcoder(19) // TODO: Change CANcoder ID
 
     private var lastLog: Long = 0L
 
     init {
+        updatePIDController()
         listOf(pValue, iValue, dValue).forEach {
             it.setListener { _ -> updatePIDController() }
         }
