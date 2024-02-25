@@ -5,6 +5,7 @@ import com.teamcelestial.subsystems.Rotator
 import com.teamcelestial.system.arm.ArmPresetData
 import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.rotator.RotatorPresetData
+import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 
@@ -27,6 +28,8 @@ object Robot : TimedRobot() {
     private val rotator = Rotator(
         rotatorPreset = rotatorPreset
     )
+
+    private val joystick = Joystick(0)
 
     override fun robotInit() {
         RobotContainer
@@ -52,12 +55,25 @@ object Robot : TimedRobot() {
 
     override fun autonomousPeriodic() {}
 
+    var joystickButtonLatch = false
+
     override fun teleopInit() {
         arm.resetIntegrator()
         rotator.resetIntegrator()
     }
 
-    override fun teleopPeriodic() {}
+    override fun teleopPeriodic() {
+        joystick.getRawButton(7).takeIf {
+            it != joystickButtonLatch
+        }?.run {
+            if(this) {
+                arm.setTargetTheta(100.0)
+            } else {
+                arm.setTargetTheta(180.0)
+            }
+            joystickButtonLatch = this
+        }
+    }
 
     override fun disabledInit() {}
 
