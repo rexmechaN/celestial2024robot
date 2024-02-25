@@ -69,7 +69,7 @@ object Robot : TimedRobot() {
         if(switchMode) {
             mode = !mode
             if(mode) {
-                arm.setTargetTheta(100.0)
+                arm.setTargetTheta(95.0)
             } else {
                 arm.setTargetTheta(180.0)
             }
