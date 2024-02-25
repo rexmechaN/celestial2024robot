@@ -32,7 +32,7 @@ class Rotator(
 
     private var pidController: PIDController = PIDController(0.0, 0.0, 0.0)
 
-    private val encoder = CANcoder(17) // TODO: Change CANcoder ID
+    private val encoder = CANcoder(19) // TODO: Change CANcoder ID
 
     private var lastLog: Long = 0L
 
@@ -62,15 +62,10 @@ class Rotator(
         if(System.currentTimeMillis() - lastLog > 1000) {
             lastLog = System.currentTimeMillis()
             println("====================================")
-            println("Arm.PID: ${pidController.p}, ${pidController.i}, ${pidController.d}")
-            println("Arm.Theta: ${state.theta}")
-            println("Arm.ThetaTarget: ${state.targetTheta}")
-            println("Arm.Output: ${state.output}")
-            val c5 = System.currentTimeMillis()
-            println("Arm.UpdateThetaTime: ${c2 - c1}")
-            println("Arm.UpdateOutputTime: ${c3 - c2}")
-            println("Arm.UpdateMotorsTime: ${c4 - c3}")
-            println("Arm.LogTime: ${c5 - c4}")
+            println("Rotator.PID: ${pidController.p}, ${pidController.i}, ${pidController.d}")
+            println("Rotator.Theta: ${state.theta}")
+            println("Rotator.ThetaTarget: ${state.targetTheta}")
+            println("Rotator.Output: ${state.output}")
         }
     }
 
