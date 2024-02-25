@@ -11,6 +11,7 @@ import com.teamcelestial.system.rotator.RotatorState
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
@@ -93,8 +94,8 @@ class Rotator(
     }
 
     private fun updateOutput() {
-        state = if(state.theta < 70)
-            state.copy(output = min(0.0, pidController.calculate(state.theta)))
+        state = if(state.theta < 60)
+            state.copy(output = max(0.0, pidController.calculate(state.theta)))
         else
             state.copy(output = pidController.calculate(state.theta))
     }
