@@ -40,6 +40,7 @@ object Robot : TimedRobot() {
                 arm.availabilityProvider
             )
         )
+        rotator.setTargetTheta(90.0)
     }
 
     override fun robotPeriodic() {
