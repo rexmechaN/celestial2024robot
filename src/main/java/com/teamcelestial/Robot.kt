@@ -56,6 +56,7 @@ object Robot : TimedRobot() {
     override fun autonomousPeriodic() {}
 
     var joystickButtonLatch = false
+    var mode = false
 
     override fun teleopInit() {
         arm.resetIntegrator()
@@ -64,14 +65,16 @@ object Robot : TimedRobot() {
 
     override fun teleopPeriodic() {
         joystick.getRawButton(7).takeIf {
-            it != joystickButtonLatch
-        }?.run {
-            if(this) {
+            it && !joystickButtonLatch
+        }?.also {
+            mode = !mode
+            if(mode) {
                 arm.setTargetTheta(100.0)
             } else {
                 arm.setTargetTheta(180.0)
             }
-            joystickButtonLatch = this
+        }.also {
+            joystickButtonLatch = it ?: false
         }
     }
 
