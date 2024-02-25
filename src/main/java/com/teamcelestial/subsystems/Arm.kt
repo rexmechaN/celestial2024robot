@@ -10,20 +10,27 @@ import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
 import com.teamcelestial.system.arm.ArmPresetData
 import com.teamcelestial.system.arm.ArmState
+import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.max
 import kotlin.math.pow
 
 class Arm(
     private val armPresetData: ArmPresetData,
-): SubsystemBase() {
+    private var disarmAvailabilityDependency: SubsystemCoherenceDependency? = null,
+    ): SubsystemBase() {
     private var state: ArmState = ArmState(
         targetTheta = armPresetData.defaultTheta,
         theta = 0.0,
         output = 0.0,
         data = HashMap()
     )
+
+    val availabilityProvider = {
+        state.theta > 145.0
+    }
 
     private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.25)
     private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 3.3)
@@ -32,7 +39,7 @@ class Arm(
     private val leftArm = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
     private val rightArm = CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless)
 
-    private var pidController: PIDController = PIDController(0.0, 0.0, 0.0)
+    private var pidController: PIDController = PIDController(pValue.value, pValue.value, iValue.value)
 
     private val leftLimiter = SlewRateLimiter(0.3)
     private val rightLimiter = SlewRateLimiter(0.3)
@@ -57,13 +64,12 @@ class Arm(
     }
 
     private fun tick() {
-        if(true) return //TODO: Remove after test
         val c1 = System.currentTimeMillis()
         updateTheta()
         val c2 = System.currentTimeMillis()
         updateOutput()
         val c3 = System.currentTimeMillis()
-        updateMotors()
+        if(true) updateMotors() //TODO: Remove after test
         val c4 = System.currentTimeMillis()
         if(System.currentTimeMillis() - lastLog > 1000) {
             lastLog = System.currentTimeMillis()
@@ -72,11 +78,6 @@ class Arm(
             println("Arm.Theta: ${state.theta}")
             println("Arm.ThetaTarget: ${state.targetTheta}")
             println("Arm.Output: ${state.output}")
-            val c5 = System.currentTimeMillis()
-            println("Arm.UpdateThetaTime: ${c2 - c1}")
-            println("Arm.UpdateOutputTime: ${c3 - c2}")
-            println("Arm.UpdateMotorsTime: ${c4 - c3}")
-            println("Arm.LogTime: ${c5 - c4}")
         }
     }
 
@@ -106,7 +107,11 @@ class Arm(
         state = if(state.theta > 195)
             state.copy(output = 0.0)
         else
-            state.copy(output = pidController.calculate(state.theta))
+            state.copy(output = pidController.calculate(state.theta).let {
+                if(availabilityProvider()) it else disarmAvailabilityDependency?.isReady()?.run {
+                    if(this) it else max(0.0, it)
+                } ?: it
+            })
     }
 
     private fun updateTarget() {
@@ -128,5 +133,9 @@ class Arm(
     private fun updatePIDController() {
         pidController = PIDController(10.0.pow(-1.0 * pValue.value), 10.0.pow(-1.0 * iValue.value), 10.0.pow(-1.0 * dValue.value))
         pidController.setpoint = state.targetTheta
+    }
+
+    fun registerDisarmAvailabilityDependency(dependency: SubsystemCoherenceDependency) {
+        disarmAvailabilityDependency = dependency
     }
 }

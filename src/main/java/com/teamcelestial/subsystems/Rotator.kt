@@ -6,17 +6,20 @@ import com.revrobotics.CANSparkMax
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
 import com.teamcelestial.system.arm.ArmState
+import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.rotator.RotatorPresetData
 import com.teamcelestial.system.rotator.RotatorState
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
 class Rotator(
     private val rotatorPreset: RotatorPresetData,
+    private var deploymentAvailabilityDependency: SubsystemCoherenceDependency? = null,
 ): SubsystemBase() {
     private val leftMotor = CANSparkMax(11, CANSparkLowLevel.MotorType.kBrushless)
     private val rightMotor = CANSparkMax(12, CANSparkLowLevel.MotorType.kBrushless)
@@ -25,14 +28,19 @@ class Rotator(
         targetTheta = rotatorPreset.defaultTheta,
         theta = 0.0,
         output = 0.0,
+        available = false,
         data = HashMap()
     )
 
-    private var pValue: NetworkValue<Double> = NetworkValue("rot_P", NetworkValueType.kDouble, 20.0)
-    private var iValue: NetworkValue<Double> = NetworkValue("rot_I", NetworkValueType.kDouble, 20.0)
-    private var dValue: NetworkValue<Double> = NetworkValue("rot_D", NetworkValueType.kDouble, 20.0)
+    val deploymentProvider = {
+        (state.theta - 180).absoluteValue < 15.0
+    }
 
-    private var pidController: PIDController = PIDController(0.0, 0.0, 0.0)
+    private var pValue: NetworkValue<Double> = NetworkValue("rot_P", NetworkValueType.kDouble, 2.6)
+    private var iValue: NetworkValue<Double> = NetworkValue("rot_I", NetworkValueType.kDouble, 4.0)
+    private var dValue: NetworkValue<Double> = NetworkValue("rot_D", NetworkValueType.kDouble, 5.0)
+
+    private var pidController: PIDController = PIDController(pValue.value, pValue.value, iValue.value)
 
     private val encoder = CANcoder(19) // TODO: Change CANcoder ID
 
@@ -56,6 +64,7 @@ class Rotator(
     private fun tick() {
         val c1 = System.currentTimeMillis()
         updateTheta()
+        checkAvailability()
         val c2 = System.currentTimeMillis()
         updateOutput()
         val c3 = System.currentTimeMillis()
@@ -71,6 +80,14 @@ class Rotator(
         }
     }
 
+    fun checkAvailability() {
+        deploymentAvailabilityDependency?.isReady()?.run {
+            if(state.available == this) return
+            state = state.copy(available = this)
+            updateTarget()
+        }
+    }
+
     /**
      * Set the target angle for the arm.
      * @param theta The target angle in degrees.
@@ -78,7 +95,6 @@ class Rotator(
     fun setTargetTheta(theta: Double): Boolean {
         state = state.copy(targetTheta = theta)
         updateTarget()
-        resetIntegrator()
         return true
     }
 
@@ -101,8 +117,12 @@ class Rotator(
     }
 
     private fun updateTarget() {
-        pidController.reset()
-        pidController.setpoint = state.targetTheta
+        resetIntegrator()
+        pidController.setpoint = if(state.available) {
+            state.targetTheta
+        } else {
+            rotatorPreset.defaultTheta
+        }
     }
 
     private fun updateTheta() {
@@ -119,5 +139,9 @@ class Rotator(
     private fun updatePIDController() {
         pidController = PIDController(10.0.pow(-1.0 * pValue.value), 10.0.pow(-1.0 * iValue.value), 10.0.pow(-1.0 * dValue.value))
         pidController.setpoint = state.targetTheta
+    }
+
+    fun registerDeploymentAvailabilityDependency(dependency: SubsystemCoherenceDependency) {
+        deploymentAvailabilityDependency = dependency
     }
 }

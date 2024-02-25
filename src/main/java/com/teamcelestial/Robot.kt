@@ -3,6 +3,7 @@ package com.teamcelestial
 import com.teamcelestial.subsystems.Arm
 import com.teamcelestial.subsystems.Rotator
 import com.teamcelestial.system.arm.ArmPresetData
+import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.rotator.RotatorPresetData
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -15,7 +16,7 @@ object Robot : TimedRobot() {
     )
 
     private val arm = Arm(
-        armPresetData = armPreset
+        armPresetData = armPreset,
     )
 
     private val rotatorPreset = RotatorPresetData(
@@ -29,6 +30,16 @@ object Robot : TimedRobot() {
 
     override fun robotInit() {
         RobotContainer
+        arm.registerDisarmAvailabilityDependency(
+            SubsystemCoherenceDependency(
+                rotator.deploymentProvider
+            )
+        )
+        rotator.registerDeploymentAvailabilityDependency(
+            SubsystemCoherenceDependency(
+                arm.availabilityProvider
+            )
+        )
     }
 
     override fun robotPeriodic() {
