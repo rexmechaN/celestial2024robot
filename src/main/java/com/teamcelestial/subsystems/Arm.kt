@@ -69,7 +69,7 @@ class Arm(
         val c2 = System.currentTimeMillis()
         updateOutput()
         val c3 = System.currentTimeMillis()
-        if(true) updateMotors() //TODO: Remove after test
+        if(false) updateMotors() //TODO: Remove after test
         val c4 = System.currentTimeMillis()
         if(System.currentTimeMillis() - lastLog > 1000) {
             lastLog = System.currentTimeMillis()
