@@ -25,9 +25,9 @@ class Arm(
         data = HashMap()
     )
 
-    private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 20.0)
-    private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 20.0)
-    private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, 20.0)
+    private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.25)
+    private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 3.3)
+    private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, 3.5)
 
     private val leftArm = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
     private val rightArm = CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless)

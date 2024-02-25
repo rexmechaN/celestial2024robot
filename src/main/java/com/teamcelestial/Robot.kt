@@ -1,7 +1,9 @@
 package com.teamcelestial
 
 import com.teamcelestial.subsystems.Arm
+import com.teamcelestial.subsystems.Rotator
 import com.teamcelestial.system.arm.ArmPresetData
+import com.teamcelestial.system.rotator.RotatorPresetData
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 
@@ -14,6 +16,15 @@ object Robot : TimedRobot() {
 
     private val arm = Arm(
         armPresetData = armPreset
+    )
+
+    private val rotatorPreset = RotatorPresetData(
+        defaultTheta = 180.0, //TODO: The default theta, target angle when robot starts
+        absZeroPointDegrees = 0.0 //TODO: The absolute zero point of the arm in degrees. Must be parallel to ground.
+    )
+
+    private val rotator = Rotator(
+        rotatorPreset = rotatorPreset
     )
 
     override fun robotInit() {
@@ -30,6 +41,7 @@ object Robot : TimedRobot() {
 
     override fun teleopInit() {
         arm.resetIntegrator()
+        rotator.resetIntegrator()
     }
 
     override fun teleopPeriodic() {}
