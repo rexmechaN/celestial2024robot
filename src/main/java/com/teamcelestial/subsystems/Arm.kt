@@ -1,11 +1,8 @@
 package com.teamcelestial.subsystems
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration
-import com.ctre.phoenix6.configs.MagnetSensorConfigs
 import com.ctre.phoenix6.hardware.CANcoder
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
-import com.teamcelestial.constant.BlindRotatorConstant
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
 import com.teamcelestial.system.arm.ArmPresetData
@@ -14,6 +11,7 @@ import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
 
@@ -54,6 +52,9 @@ class Arm(
             it.setListener { _ -> updatePIDController() }
         }
     }
+
+    val atSetpoint: Boolean
+        get() = abs(state.targetTheta - state.theta) < 4.0
 
     override fun periodic() {
         tick()

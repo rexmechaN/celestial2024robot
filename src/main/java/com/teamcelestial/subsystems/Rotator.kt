@@ -12,10 +12,7 @@ import com.teamcelestial.system.rotator.RotatorState
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
+import kotlin.math.*
 
 class Rotator(
     private val rotatorPreset: RotatorPresetData,
@@ -52,6 +49,9 @@ class Rotator(
             it.setListener { _ -> updatePIDController() }
         }
     }
+
+    val atSetpoint: Boolean
+        get() = abs(state.targetTheta - state.theta) <= 4.0
 
     override fun periodic() {
         tick()

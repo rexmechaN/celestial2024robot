@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 import kotlin.math.*
 
-object Shooter: SubsystemBase() {
+class Shooter: SubsystemBase() {
     private val leftCim = CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushless)
     private val rightCim = CANSparkMax(16, CANSparkLowLevel.MotorType.kBrushless)
 
@@ -29,16 +29,7 @@ object Shooter: SubsystemBase() {
     private var lastRpmPublish = 0L
     private val ballWeight = 0.230
 
-    private var shooterStarted = false
-
-    fun setMotors(power: Double) {
-        leftCim.set(power)
-        rightCim.set(power)
-    }
-
     fun tick() {
-        trackTriggers()
-
         if (lastRpmPublish + 500 < System.currentTimeMillis()) {
             lastRpmPublish = System.currentTimeMillis()
         }
@@ -55,21 +46,7 @@ object Shooter: SubsystemBase() {
         }
     }
 
-    private fun trackTriggers() {
-        /*if (JoystickObject.singleton.getRawButton(1)) {
-            if (!shooterStarted) {
-                start(2.65, 0.7)
-                shooterStarted = true
-            }
-        } else {
-            if (shooterStarted) {
-                stop()
-                shooterStarted = false
-            }
-        }*/
-    }
-
-    private fun start(distance: Double, height: Double) {
+    fun start(distance: Double, height: Double) {
         startTime = System.currentTimeMillis()
 
         calculateRpm(distance, height, 25.0).let {
@@ -79,7 +56,7 @@ object Shooter: SubsystemBase() {
         }
     }
 
-    private fun stop() {
+    fun stop() {
         targetRpm = 0.0
         setMotor(targetRpm)
     }
@@ -104,13 +81,13 @@ object Shooter: SubsystemBase() {
         return sqrt((2 * energyTarget) / (totalInertia * (1 - rateOfRpmRetention))) * 60 / (2 * Math.PI)
     }
 
-    private fun setMotor(rpm: Double) {
+    fun setMotor(rpm: Double) {
         if (reference == rpm) return
         reference = rpm
         println("Set motor: $rpm")
         println("motor power ${leftCim.get()}")
         pidControllers.forEach {
-            it.setReference(rpm, CANSparkBase.ControlType.kVelocity)
+            it.setReference(-rpm, CANSparkBase.ControlType.kVelocity)
         }
     }
 
