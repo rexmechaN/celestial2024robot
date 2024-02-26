@@ -1,7 +1,9 @@
 package com.teamcelestial
 
 import com.teamcelestial.subsystems.Arm
+import com.teamcelestial.subsystems.Feeder
 import com.teamcelestial.subsystems.Rotator
+import com.teamcelestial.subsystems.Shooter
 import com.teamcelestial.system.arm.ArmPresetData
 import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.rotator.RotatorPresetData
@@ -29,6 +31,9 @@ object Robot : TimedRobot() {
         rotatorPreset = rotatorPreset
     )
 
+    private val shooter = Shooter()
+    private val feeder = Feeder()
+
     private val joystick = Joystick(0)
 
     override fun robotInit() {
@@ -43,7 +48,7 @@ object Robot : TimedRobot() {
                 arm.availabilityProvider
             )
         )
-        rotator.setTargetTheta(90.0)
+        rotator.setTargetTheta(55.0)
         arm.setTargetTheta(180.0)
     }
 
@@ -57,6 +62,8 @@ object Robot : TimedRobot() {
 
     var joystickButtonLatch = false
     var mode = false
+
+    var shooterStarted = false
 
     override fun teleopInit() {
         arm.resetIntegrator()
@@ -75,6 +82,25 @@ object Robot : TimedRobot() {
             }
         }
         joystickButtonLatch = button
+
+        if (joystick.getRawButton(1)) {
+            if (!shooterStarted) {
+                shooter.start(2.65, 0.7)
+                shooterStarted = true
+            }
+        } else {
+            if (shooterStarted) {
+                shooter.stop()
+                shooterStarted = false
+            }
+        }
+        shooter.tick()
+
+        if (joystick.getRawButton(9)) {
+            feeder.setMotor(-0.2)
+        } else {
+            feeder.setMotor(0.0)
+        }
     }
 
     override fun disabledInit() {}

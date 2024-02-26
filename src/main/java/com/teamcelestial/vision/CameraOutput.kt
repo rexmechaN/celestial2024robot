@@ -3,8 +3,8 @@ package com.teamcelestial.vision
 import edu.wpi.first.math.geometry.Transform3d
 import org.photonvision.PhotonCamera
 
-class CameraOutput(cameraNickname: String?) {
-    private val camera = PhotonCamera(cameraNickname)
+class CameraOutput(cameraName: String?) {
+    private val camera = PhotonCamera(cameraName)
     val bestTarget: Transform3d?
         get() = camera.latestResult.bestTarget?.bestCameraToTarget
 

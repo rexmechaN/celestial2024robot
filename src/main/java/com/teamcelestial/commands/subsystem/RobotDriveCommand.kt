@@ -1,9 +1,9 @@
-package com.teamcelestial.commands
+package com.teamcelestial.commands.subsystem
 
 import edu.wpi.first.wpilibj2.command.Command
 import com.teamcelestial.subsystems.Drivetrain
 
-class DriveRobotCommand(
+class RobotDriveCommand(
     private val xSupplier: () -> Double,
     private val ySupplier: () -> Double
 ) : Command() {
@@ -20,9 +20,7 @@ class DriveRobotCommand(
         Drivetrain.drive(x, y)
     }
 
-    override fun isFinished(): Boolean {
-        return false
-    }
+    override fun isFinished(): Boolean = false
 
     override fun end(interrupted: Boolean) {}
 }
