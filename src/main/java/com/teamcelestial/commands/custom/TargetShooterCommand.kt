@@ -31,8 +31,8 @@ class TargetShooterCommand(
             ArmControlCommand(arm, armTargetTheta),
             RotatorControlCommand(rotator, rotatorTargetTheta),
             ParallelCommandGroup(
-                ShooterControlCommand(shooter, 5.0),
-                FeederControlCommand(feeder, 3.0, 2.0)
+                FeederControlCommand(feeder, 3.0, 3.0),
+                ShooterControlCommand(shooter, 6.0)
             )
         )
     }

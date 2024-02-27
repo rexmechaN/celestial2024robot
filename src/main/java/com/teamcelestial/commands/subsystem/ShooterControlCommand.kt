@@ -16,6 +16,7 @@ class ShooterControlCommand(
     }
 
     override fun initialize() {
+        timer.reset()
         timer.start()
     }
 
@@ -26,9 +27,10 @@ class ShooterControlCommand(
             shooter.setMotor(5000.0)
     }
 
-    override fun isFinished(): Boolean = timer.get() < (durationSeconds + delay)
+    override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)
 
     override fun end(interrupted: Boolean) {
         shooter.setMotor(0.0)
+        timer.reset()
     }
 }

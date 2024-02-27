@@ -54,7 +54,7 @@ class Arm(
     }
 
     val atSetpoint: Boolean
-        get() = abs(state.targetTheta - state.theta) < 4.0
+        get() = abs(state.targetTheta - state.theta) <= 5.0
 
     override fun periodic() {
         tick()

@@ -17,6 +17,7 @@ class FeederControlCommand(
     }
 
     override fun initialize() {
+        timer.reset()
         timer.start()
     }
 
@@ -27,9 +28,10 @@ class FeederControlCommand(
             feeder.setMotor(-0.2)
     }
 
-    override fun isFinished(): Boolean = timer.get() < (durationSeconds + delay)
+    override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)
 
     override fun end(interrupted: Boolean) {
         feeder.setMotor(0.0)
+        timer.reset()
     }
 }

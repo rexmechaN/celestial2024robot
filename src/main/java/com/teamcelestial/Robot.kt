@@ -1,5 +1,8 @@
 package com.teamcelestial
 
+import com.teamcelestial.commands.custom.TargetShooterCommand
+import com.teamcelestial.commands.subsystem.ArmControlCommand
+import com.teamcelestial.commands.subsystem.RotatorControlCommand
 import com.teamcelestial.subsystems.Arm
 import com.teamcelestial.subsystems.Feeder
 import com.teamcelestial.subsystems.Rotator
@@ -7,11 +10,17 @@ import com.teamcelestial.subsystems.Shooter
 import com.teamcelestial.system.arm.ArmPresetData
 import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.rotator.RotatorPresetData
+import com.teamcelestial.vision.CameraOutput
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
+import edu.wpi.first.wpilibj2.command.button.JoystickButton
 
 object Robot : TimedRobot() {
+
+    private val joystick = Joystick(0)
 
     private val armPreset = ArmPresetData(
         defaultTheta = 135.0, //TODO: The default theta, target angle when robot starts
@@ -34,7 +43,7 @@ object Robot : TimedRobot() {
     private val shooter = Shooter()
     private val feeder = Feeder()
 
-    private val joystick = Joystick(0)
+    private val cameraOutput = CameraOutput("celestialCam")
 
     override fun robotInit() {
         RobotContainer
@@ -48,8 +57,24 @@ object Robot : TimedRobot() {
                 arm.availabilityProvider
             )
         )
-        rotator.setTargetTheta(55.0)
-        arm.setTargetTheta(180.0)
+
+        JoystickButton(joystick, 7).onTrue(
+            TargetShooterCommand(
+                rotator,
+                arm,
+                shooter,
+                feeder,
+                180.0,
+                55.0
+            )
+        )
+
+        JoystickButton(joystick, 8).onTrue(
+            SequentialCommandGroup(
+                RotatorControlCommand(rotator, 180.0),
+                ArmControlCommand(arm, 120.0)
+            )
+        )
     }
 
     override fun robotPeriodic() {
@@ -60,47 +85,13 @@ object Robot : TimedRobot() {
 
     override fun autonomousPeriodic() {}
 
-    var joystickButtonLatch = false
-    var mode = false
-
-    var shooterStarted = false
-
     override fun teleopInit() {
         arm.resetIntegrator()
         rotator.resetIntegrator()
     }
 
     override fun teleopPeriodic() {
-        val button = joystick.getRawButton(7)
-        val switchMode = button && !joystickButtonLatch
-        if(switchMode) {
-            mode = !mode
-            if(mode) {
-                arm.setTargetTheta(95.0)
-            } else {
-                arm.setTargetTheta(180.0)
-            }
-        }
-        joystickButtonLatch = button
-
-        if (joystick.getRawButton(1)) {
-            if (!shooterStarted) {
-                shooter.start(2.65, 0.7)
-                shooterStarted = true
-            }
-        } else {
-            if (shooterStarted) {
-                shooter.stop()
-                shooterStarted = false
-            }
-        }
-        shooter.tick()
-
-        if (joystick.getRawButton(9)) {
-            feeder.setMotor(-0.2)
-        } else {
-            feeder.setMotor(0.0)
-        }
+        println(cameraOutput.bestTarget)
     }
 
     override fun disabledInit() {}
