@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.button.JoystickButton
+import org.photonvision.PhotonCamera
 
 object Robot : TimedRobot() {
 
@@ -43,9 +44,10 @@ object Robot : TimedRobot() {
     private val shooter = Shooter()
     private val feeder = Feeder()
 
-    private val cameraOutput = CameraOutput("celestialCam")
+    private val cameraOutput = CameraOutput("celestial")
 
     override fun robotInit() {
+
         RobotContainer
         arm.registerDisarmAvailabilityDependency(
             SubsystemCoherenceDependency(
@@ -78,6 +80,8 @@ object Robot : TimedRobot() {
     }
 
     override fun robotPeriodic() {
+        if(cameraOutput.bestTarget != null)
+            println(cameraOutput.bestTarget)
         CommandScheduler.getInstance().run()
     }
 
@@ -91,7 +95,6 @@ object Robot : TimedRobot() {
     }
 
     override fun teleopPeriodic() {
-        println(cameraOutput.bestTarget)
     }
 
     override fun disabledInit() {}
