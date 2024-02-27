@@ -30,7 +30,7 @@ class Arm(
         state.theta > 145.0
     }
 
-    private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.25)
+    private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.3)
     private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 3.3)
     private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, 3.5)
 
