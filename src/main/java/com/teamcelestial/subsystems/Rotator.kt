@@ -96,6 +96,7 @@ class Rotator(
     fun setTargetTheta(theta: Double): Boolean {
         state = state.copy(targetTheta = theta)
         updateTarget()
+        resetIntegrator()
         return true
     }
 
