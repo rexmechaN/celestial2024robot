@@ -5,8 +5,8 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class RelativeShooterTarget(
-    private val z: Double,
     private val y: Double,
+    private val z: Double,
     private val theta: Double,
 ): ShooterTarget {
     @Suppress("UNREACHABLE_CODE")
