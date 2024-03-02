@@ -21,11 +21,6 @@ class TargetShooterCommand(
     rotatorTargetTheta: Double
 ) : SequentialCommandGroup() {
 
-    private val delayedRotatorCommand = SequentialCommandGroup(
-        WaitCommand(2.0),
-        RotatorControlCommand(rotator, rotatorTargetTheta)
-    )
-
     init {
         addCommands(
             ArmControlCommand(arm, armTargetTheta),

@@ -9,15 +9,22 @@ class RotatorControlCommand(
     private val targetTheta: Double
 ): Command() {
 
+    var isSetted = false
+
     init {
         addRequirements(rotator)
     }
 
     override fun initialize() {}
 
-    override fun execute() { rotator.setTargetTheta(targetTheta) }
+    override fun execute() {
+        if(!isSetted) {
+            rotator.setTargetTheta(targetTheta)
+            isSetted = true
+        }
+    }
 
     override fun isFinished(): Boolean = rotator.atSetpoint
 
-    override fun end(interrupted: Boolean) {}
+    override fun end(interrupted: Boolean) { isSetted = false }
 }

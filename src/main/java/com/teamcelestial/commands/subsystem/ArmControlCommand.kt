@@ -9,15 +9,22 @@ class ArmControlCommand(
     private val targetTheta: Double
 ) : Command() {
 
+    var isSetted = false
+
     init {
         addRequirements(arm)
     }
 
     override fun initialize() {}
 
-    override fun execute() { arm.setTargetTheta(targetTheta) }
+    override fun execute() {
+        if(!isSetted) {
+            arm.setTargetTheta(targetTheta)
+            isSetted = true
+        }
+    }
 
     override fun isFinished(): Boolean = arm.atSetpoint
 
-    override fun end(interrupted: Boolean) {}
+    override fun end(interrupted: Boolean) { isSetted = false }
 }

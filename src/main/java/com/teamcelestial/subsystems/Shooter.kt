@@ -38,7 +38,6 @@ class Shooter: SubsystemBase() {
             targetRpm * 0.33
         } else {
             targetRpm
-
         }
         setMotor(target)
         if (lastRpmPublish + 500 < System.currentTimeMillis()) {

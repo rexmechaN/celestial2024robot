@@ -60,7 +60,7 @@ class Arm(
         tick()
     }
 
-    private fun setMotors(power: Double) {
+    fun setMotors(power: Double) {
         leftArm.set(-power)
         rightArm.set(power)
     }
