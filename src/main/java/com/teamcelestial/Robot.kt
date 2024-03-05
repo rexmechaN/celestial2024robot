@@ -48,6 +48,8 @@ object Robot : TimedRobot() {
     private val cameraOutput = CameraOutput("celestial")
 
     override fun robotInit() {
+        ShooterAssembly.initializeWithSubsystems(arm, rotator)
+
         RobotContainer
         arm.registerDisarmAvailabilityDependency(
             SubsystemCoherenceDependency(
