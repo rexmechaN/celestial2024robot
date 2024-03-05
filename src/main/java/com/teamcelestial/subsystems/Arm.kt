@@ -140,4 +140,8 @@ class Arm(
     fun registerDisarmAvailabilityDependency(dependency: SubsystemCoherenceDependency) {
         disarmAvailabilityDependency = dependency
     }
+
+    fun getTheta(): Double {
+        return state.theta
+    }
 }

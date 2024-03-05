@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.*
 
 class Rotator(
-    private val rotatorPreset: RotatorPresetData,
+    val rotatorPreset: RotatorPresetData,
     private var deploymentAvailabilityDependency: SubsystemCoherenceDependency? = null,
 ): SubsystemBase() {
     private val leftMotor = CANSparkMax(11, CANSparkLowLevel.MotorType.kBrushless)
@@ -145,5 +145,9 @@ class Rotator(
 
     fun registerDeploymentAvailabilityDependency(dependency: SubsystemCoherenceDependency) {
         deploymentAvailabilityDependency = dependency
+    }
+
+    fun getTheta(): Double {
+        return state.theta
     }
 }
