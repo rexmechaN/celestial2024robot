@@ -10,10 +10,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.abs
 
 object Drivetrain: SubsystemBase() {
-    private val leftSlave = CANSparkMax(2, CANSparkLowLevel.MotorType.kBrushless);
-    private val leftMaster = CANSparkMax(4, CANSparkLowLevel.MotorType.kBrushless);
-    private val rightSlave = CANSparkMax(3, CANSparkLowLevel.MotorType.kBrushless);
-    private val rightMaster = CANSparkMax(1, CANSparkLowLevel.MotorType.kBrushless);
+    private val leftSlave = CANSparkMax(2, CANSparkLowLevel.MotorType.kBrushless)
+    private val leftMaster = CANSparkMax(4, CANSparkLowLevel.MotorType.kBrushless)
+    private val rightSlave = CANSparkMax(3, CANSparkLowLevel.MotorType.kBrushless)
+    private val rightMaster = CANSparkMax(1, CANSparkLowLevel.MotorType.kBrushless)
 
     private val robotDrive =  DifferentialDrive(leftMaster, rightMaster)
 
@@ -26,13 +26,13 @@ object Drivetrain: SubsystemBase() {
     init {
         rightMaster.inverted = true
         rightSlave.inverted = true
+        leftSlave.follow(leftMaster)
+        rightSlave.follow(rightMaster)
     }
 
     fun drive(x: Double, y: Double) {
-        val steer = x * 1.0 + if (x<0) -(abs(y) * 0.2) else abs(y) * 0.2
+        val steer = (x * 1.0 - (abs(y) * x * 0.6)) * 0.8
         robotDrive.arcadeDrive(y, steer)
-        leftSlave.follow(leftMaster)
-        rightSlave.follow(rightMaster)
     }
 
     private fun updateDriveTrainPIDController() {
