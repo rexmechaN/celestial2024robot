@@ -1,10 +1,12 @@
 package com.teamcelestial.subsystems
 
+import com.kauailabs.navx.frc.AHRS
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.drive.DifferentialDrive
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.abs
@@ -22,6 +24,8 @@ object Drivetrain: SubsystemBase() {
     var pValue: NetworkValue<Double> = NetworkValue("P", NetworkValueType.kDouble, 0.0)
     var iValue: NetworkValue<Double> = NetworkValue("I", NetworkValueType.kDouble, 0.0)
     var dValue: NetworkValue<Double> = NetworkValue("D", NetworkValueType.kDouble, 0.0)
+
+    private val navx2 = AHRS(SPI.Port.kMXP)
 
     init {
         rightMaster.inverted = true
