@@ -4,6 +4,8 @@ import com.revrobotics.CANSparkBase
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkPIDController
+import com.teamcelestial.math.solver.NumericalSolver
+import com.teamcelestial.math.util.toRadians
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 import kotlin.math.*
@@ -28,6 +30,7 @@ class Shooter: SubsystemBase() {
     private var reference = -1.0
     private var lastRpmPublish = 0L
     private val ballWeight = 0.230
+    private val ballFinalSpeedTarget = 0.2
 
     fun tick() {
         if (lastRpmPublish + 500 < System.currentTimeMillis()) {
@@ -48,11 +51,21 @@ class Shooter: SubsystemBase() {
     fun start(distance: Double, height: Double) {
         startTime = System.currentTimeMillis()
 
-        calculateRpm(distance, height, 25.0).let {
-            targetRpm = it
+        NumericalSolver(
+            0..90,
+            0.1
+        ) {
+            calculateRpm(distance, height, it)
+        }.solveFor(calculateApproximateRpmTargetWithoutFlightData(height)).let {
+            targetRpm = it.y
+            targetTheta = it.x
             println("Target RPM: $targetRpm")
             println("Target Theta: $targetTheta")
         }
+    }
+
+    private fun calculateApproximateRpmTargetWithoutFlightData(height: Double): Double {
+        return calculateRpmForEnergyTarget((0.5 * ballWeight * ballFinalSpeedTarget.pow(2) + ballWeight * 9.81 * height) * 1.1)
     }
 
     fun stop() {
@@ -92,7 +105,7 @@ class Shooter: SubsystemBase() {
 
     private fun calculateRpm(distance: Double, height: Double, thetaInDegrees: Double): Double {
         val g = 9.81
-        val theta = Math.toRadians(thetaInDegrees)
+        val theta = thetaInDegrees.toRadians()
         val v = (distance / cos(theta)) * sqrt((g) / (2 * (distance * tan(theta) - height)))
         val t = distance / (v * cos(theta))
         // Flywheel speed is not equal to ring speed since the contact happens for a short time
