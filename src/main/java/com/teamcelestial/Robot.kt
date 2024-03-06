@@ -1,28 +1,23 @@
 package com.teamcelestial
 
 import com.teamcelestial.commands.custom.TargetShooterCommand
-import com.teamcelestial.commands.subsystem.ArmControlCommand
-import com.teamcelestial.commands.subsystem.ArmForwardCommand
-import com.teamcelestial.commands.subsystem.RobotDriveCommand
-import com.teamcelestial.commands.subsystem.RotatorControlCommand
+import com.teamcelestial.commands.subsystem.*
 import com.teamcelestial.subsystems.*
 import com.teamcelestial.system.arm.ArmPresetData
 import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.rotator.RotatorPresetData
-import com.teamcelestial.system.shooter.RelativeShooterTarget
 import com.teamcelestial.vision.CameraOutput
-import edu.wpi.first.wpilibj.Joystick
+import edu.wpi.first.wpilibj.PS4Controller
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.RepeatCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
-import edu.wpi.first.wpilibj2.command.button.JoystickButton
-import org.photonvision.PhotonCamera
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
 
 object Robot : TimedRobot() {
-
-    private val joystick = Joystick(0)
+    private val controller = PS4Controller(0)
+    private val commandController = CommandPS4Controller(0)
 
     private val armPreset = ArmPresetData(
         defaultTheta = 135.0, //TODO: The default theta, target angle when robot starts
@@ -45,6 +40,8 @@ object Robot : TimedRobot() {
     private val shooter = Shooter()
     private val feeder = Feeder()
 
+    private val intake = Intake()
+
     private val cameraOutput = CameraOutput("celestial")
 
     override fun robotInit() {
@@ -62,9 +59,20 @@ object Robot : TimedRobot() {
             )
         )
 
-        Drivetrain.defaultCommand = RobotDriveCommand({ joystick.x }, { joystick.y })
+        Drivetrain.defaultCommand = RobotDriveCommand(
+            { controller.rightX },
+            { controller.leftY },
+            { if(controller.r2Button) 1.0 else 0.6 }
+        )
 
-        JoystickButton(joystick, 7).onTrue(
+        commandController.povDown().onTrue(
+            SequentialCommandGroup(
+                RotatorControlCommand(rotator, 180.0),
+                ArmControlCommand(arm, 95.0)
+            )
+        )
+
+        commandController.cross().onTrue(
             SequentialCommandGroup(
                 TargetShooterCommand(
                     rotator,
@@ -72,34 +80,38 @@ object Robot : TimedRobot() {
                     shooter,
                     feeder,
                     180.0,
-                    50.0
+                    55.0
                 ),
                 RotatorControlCommand(rotator, 180.0),
-                ArmControlCommand(arm, 120.0)
+                ArmControlCommand(arm, 95.0)
             )
         )
 
-        JoystickButton(joystick, 9).onTrue(
-            SequentialCommandGroup(
-                RotatorControlCommand(rotator, 180.0),
-                ArmControlCommand(arm, 180.0)
+        commandController.L1().whileTrue(
+            RepeatCommand(
+                ParallelCommandGroup(
+                    IntakeForwardCommand(intake, 0.6),
+                    FeederForwardCommand(feeder, -0.2)
+                )
             )
         )
 
-        JoystickButton(joystick, 10).onTrue(
+        commandController.R1().whileTrue(
             SequentialCommandGroup(
-                RotatorControlCommand(rotator, 180.0),
-                ArmControlCommand(arm, 120.0)
+                IntakeForwardCommand(intake, -0.6),
+                FeederForwardCommand(feeder, 0.2)
             )
         )
     }
 
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
-        if(cameraOutput.bestTarget != null){
+        /*if(cameraOutput.bestTarget != null){
             val visionTarget = RelativeShooterTarget(cameraOutput.bestTarget!!.y, cameraOutput.bestTarget!!.z, 25.0)
             println(visionTarget.getTargetDistanceAndHeightPair(shooter))
-        }
+        }*/
+
+        //println(ShooterAssembly.getShooterAbsTheta())
     }
 
     override fun autonomousInit() {}
