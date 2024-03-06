@@ -11,7 +11,7 @@ object ShooterAssembly {
 
     fun getShooterAbsTheta(): Double {
         val link1Theta = 270.0 - arm.getTheta()
-        val link2Theta = rotator.getTheta() - rotator.rotatorPreset.defaultTheta
+        val link2Theta = -(rotator.getTheta() - rotator.rotatorPreset.defaultTheta)
         return link1Theta + link2Theta
     }
 }
