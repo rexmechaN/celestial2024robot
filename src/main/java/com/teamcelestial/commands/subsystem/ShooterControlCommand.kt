@@ -24,7 +24,7 @@ class ShooterControlCommand(
         if(timer.get() < delay)
             shooter.setMotor(0.0)
         else
-            shooter.setMotor(4500.0)
+            shooter.setMotor(4000.0)
     }
 
     override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)

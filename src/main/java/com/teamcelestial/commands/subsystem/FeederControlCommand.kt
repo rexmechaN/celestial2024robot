@@ -7,7 +7,8 @@ import edu.wpi.first.wpilibj2.command.Command
 class FeederControlCommand(
     private val feeder: Feeder,
     private val durationSeconds: Double,
-    private val delay: Double = 0.0
+    private val delay: Double = 0.0,
+    private val powerConstant: Double = 1.0
 ) : Command() {
 
     private val timer = Timer()
@@ -25,7 +26,7 @@ class FeederControlCommand(
         if(timer.get() < delay)
             feeder.setMotor(0.0)
         else
-            feeder.setMotor(-0.2)
+            feeder.setMotor(-0.2 * powerConstant)
     }
 
     override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)

@@ -5,7 +5,8 @@ import com.teamcelestial.subsystems.Drivetrain
 
 class RobotDriveCommand(
     private val xSupplier: () -> Double,
-    private val ySupplier: () -> Double
+    private val ySupplier: () -> Double,
+    private val limiterSupplier: () -> Double = { 1.0 }
 ) : Command() {
 
     init {
@@ -15,8 +16,8 @@ class RobotDriveCommand(
     override fun initialize() {}
 
     override fun execute() {
-        val x = xSupplier()
-        val y = ySupplier()
+        val x = xSupplier() * limiterSupplier()
+        val y = ySupplier() * limiterSupplier()
         Drivetrain.drive(x, y)
     }
 
