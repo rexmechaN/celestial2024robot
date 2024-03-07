@@ -10,6 +10,7 @@ import com.teamcelestial.system.arm.ArmState
 import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.abs
 import kotlin.math.max
@@ -73,14 +74,12 @@ class Arm(
         val c3 = System.currentTimeMillis()
         updateMotors()
         val c4 = System.currentTimeMillis()
-        if(System.currentTimeMillis() - lastLog > 1000) {
-            lastLog = System.currentTimeMillis()
-            println("====================================")
-            println("Arm.PID: ${pidController.p}, ${pidController.i}, ${pidController.d}")
-            println("Arm.Theta: ${state.theta}")
-            println("Arm.ThetaTarget: ${state.targetTheta}")
-            println("Arm.Output: ${state.output}")
-        }
+        SmartDashboard.putNumber("Arm PID-P:", pidController.p)
+        SmartDashboard.putNumber("Arm PID-I:", pidController.i)
+        SmartDashboard.putNumber("Arm PID-D:", pidController.d)
+        SmartDashboard.putNumber("Arm Theta", state.theta)
+        SmartDashboard.putNumber("Arm Target Theta", state.targetTheta)
+        SmartDashboard.putNumber("Arm Output", state.output)
     }
 
     /**

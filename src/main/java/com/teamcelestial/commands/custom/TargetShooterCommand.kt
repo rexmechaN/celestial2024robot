@@ -23,12 +23,14 @@ class TargetShooterCommand(
 
     init {
         addCommands(
-            ArmControlCommand(arm, armTargetTheta),
-            RotatorControlCommand(rotator, rotatorTargetTheta),
+            ParallelCommandGroup(
+                ArmControlCommand(arm, armTargetTheta),
+                RotatorControlCommand(rotator, rotatorTargetTheta)
+            ),
             FeederControlCommand(feeder, 0.2, 0.0, -1.0),
             ParallelCommandGroup(
-                FeederControlCommand(feeder, 3.0, 3.0),
-                ShooterControlCommand(shooter, 5.0)
+                FeederControlCommand(feeder, 2.0, 0.8),
+                ShooterControlCommand(shooter, 3.0)
             )
         )
     }

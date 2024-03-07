@@ -11,6 +11,8 @@ import com.teamcelestial.system.rotator.RotatorPresetData
 import com.teamcelestial.system.rotator.RotatorState
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.*
 
@@ -50,7 +52,7 @@ class Rotator(
         }
     }
 
-    val atSetpoint: Boolean
+   val atSetpoint: Boolean
         get() = abs(state.targetTheta - state.theta) <= 5.0
 
     override fun periodic() {
@@ -71,14 +73,12 @@ class Rotator(
         val c3 = System.currentTimeMillis()
         updateMotors()
         val c4 = System.currentTimeMillis()
-        if(System.currentTimeMillis() - lastLog > 1000) {
-            lastLog = System.currentTimeMillis()
-            println("====================================")
-            println("Rotator.PID: ${pidController.p}, ${pidController.i}, ${pidController.d}")
-            println("Rotator.Theta: ${state.theta}")
-            println("Rotator.ThetaTarget: ${state.targetTheta}")
-            println("Rotator.Output: ${state.output}")
-        }
+        SmartDashboard.putNumber("Rotator PID-P:", pidController.p)
+        SmartDashboard.putNumber("Rotator PID-I:", pidController.i)
+        SmartDashboard.putNumber("Rotator PID-D:", pidController.d)
+        SmartDashboard.putNumber("Rotator Theta", state.theta)
+        SmartDashboard.putNumber("Rotator Target Theta", state.targetTheta)
+        SmartDashboard.putNumber("Rotator Output", state.output)
     }
 
     fun checkAvailability() {
@@ -112,7 +112,7 @@ class Rotator(
     }
 
     private fun updateOutput() {
-        state = if(state.theta < 60)
+        state = if(state.theta < 50)
             state.copy(output = max(0.0, pidController.calculate(state.theta)))
         else
             state.copy(output = pidController.calculate(state.theta))
