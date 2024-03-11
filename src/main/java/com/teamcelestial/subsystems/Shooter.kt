@@ -49,7 +49,7 @@ class Shooter: SubsystemBase() {
         }
     }
 
-    fun start(distance: Double, height: Double): ShooterCalcResult {
+    fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {
         startTime = System.currentTimeMillis()
 
         NumericalSolver(
@@ -58,9 +58,11 @@ class Shooter: SubsystemBase() {
         ) {
             calculateRpm(distance, height, it)
         }.solveFor(calculateApproximateRpmTargetWithoutFlightData(height)).let {
-            targetRpm = it.y
-            targetTheta = it.x
-            return ShooterCalcResult(rpm = targetRpm, theta = targetTheta)
+            if(runMotors) targetRpm = it.y
+            if(runMotors) targetTheta = it.x
+            return ShooterCalcResult(rpm = it.y, theta = it.x).also {shooterCalcResult ->
+                println(shooterCalcResult)
+            }
         }
     }
 
