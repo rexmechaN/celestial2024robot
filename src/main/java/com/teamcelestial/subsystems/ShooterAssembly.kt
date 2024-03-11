@@ -56,7 +56,9 @@ object ShooterAssembly {
     }
 
     fun aimForTarget(shooterTarget: ShooterTarget) {
+        println(shooterTarget)
         val result = shooterTarget.getTargetDistanceAndHeightPair(shooter)
+        println(result)
         shooter.start(result.first, result.second, runMotors = false)
         //state = ShooterAssemblyState.arming
     }
