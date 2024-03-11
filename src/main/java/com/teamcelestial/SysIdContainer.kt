@@ -10,31 +10,34 @@ object SysIdContainer {
     private val controller = PS4Controller(0)
     private val commandController = CommandPS4Controller(0)
 
+    private val drivetrain = Drivetrain()
+
     init {
         configureBindings()
     }
 
     private fun configureBindings() {
-        Drivetrain.defaultCommand = RobotDriveCommand(
+        drivetrain.defaultCommand = RobotDriveCommand(
+            drivetrain,
             { controller.rightX },
             { controller.leftY },
             { if(controller.r1Button) 1.0 else 0.6 }
         )
 
         commandController.triangle().whileTrue(
-            Drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+            drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
         )
 
         commandController.cross().whileTrue(
-            Drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+            drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
         )
 
         commandController.square().whileTrue(
-            Drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward)
+            drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward)
         )
 
         commandController.circle().whileTrue(
-            Drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+            drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse)
         )
     }
 }

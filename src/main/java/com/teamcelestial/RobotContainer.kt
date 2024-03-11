@@ -26,30 +26,15 @@ object RobotContainer {
     private val controller = PS4Controller(0)
     private val commandController = CommandPS4Controller(0)
 
-    /*private val armPreset = ArmPresetData(
+    private val armPreset = ArmPresetData(
         defaultTheta = 135.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = -65.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to ground.
-    )
-
-    val arm = Arm(
-        armPresetData = armPreset,
+        absZeroPointDegrees = 292.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to ground.
     )
 
     private val rotatorPreset = RotatorPresetData(
         defaultTheta = 180.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = 265.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
+        absZeroPointDegrees = 313.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
     )
-
-    val rotator = Rotator(
-        rotatorPreset = rotatorPreset
-    )
-
-    private val shooter = Shooter()
-    private val feeder = Feeder()
-
-    private val intake = Intake()
-
-    private val cameraOutput = CameraOutput("celestial")
 
     private val desiredRotatorAngle = NetworkValue<Double>(
         "desiredRotatorAngle",
@@ -61,7 +46,15 @@ object RobotContainer {
         "desiredArmAngle",
         NetworkValueType.kDouble,
         180.0
-    )*/
+    )
+
+    val arm = Arm(armPresetData = armPreset,)
+    val rotator = Rotator(rotatorPreset = rotatorPreset)
+    private val intake = Intake()
+    private val feeder = Feeder()
+    private val shooter = Shooter()
+
+    val drivetrain = Drivetrain()
 
     init {
         initializeSubsystemDependencies()
@@ -69,7 +62,12 @@ object RobotContainer {
     }
 
     private fun initializeSubsystemDependencies() {
-        /*ShooterAssembly.initializeWithSubsystems(arm, rotator, shooter)
+        ShooterAssembly.initializeWithSubsystems(arm, rotator, shooter)
+
+        NamedCommands.registerCommand(
+            "takeNote",
+            FeederForwardCommand(feeder, -0.25)
+        )
 
         NamedCommands.registerCommand(
             "closeDistanceShoot",
@@ -116,17 +114,18 @@ object RobotContainer {
             SubsystemCoherenceDependency(
                 arm.availabilityProvider
             )
-        )*/
+        )
     }
 
     private fun configureBindings() {
-        Drivetrain.defaultCommand = RobotDriveCommand(
+        drivetrain.defaultCommand = RobotDriveCommand(
+            drivetrain,
             { controller.rightX },
             { controller.leftY },
             { if(controller.r1Button) 1.0 else 0.6 }
         )
 
-        /*commandController.povDown().onTrue(
+        commandController.povDown().onTrue(
             ParallelCommandGroup(
                 RotatorControlCommand(rotator, 180.0),
                 ArmControlCommand(arm, 95.0)
@@ -157,6 +156,16 @@ object RobotContainer {
             )
         )
 
+        commandController.circle().onTrue(
+            SequentialCommandGroup(
+                ParallelCommandGroup(
+                    ArmControlCommand(arm, 158.0),
+                    RotatorControlCommand(rotator, 60.0)
+                ),
+                ShooterControlCommand(shooter, 1.5, -500.0)
+            )
+        )
+
         commandController.triangle().onTrue(
             SequentialCommandGroup(
                 TargetShooterCommand(
@@ -174,11 +183,25 @@ object RobotContainer {
             )
         )
 
+        commandController.square().onTrue(
+            TurnToAngleCommand(drivetrain, 180.0)
+        )
+
+        commandController.povLeft().whileTrue(
+            SequentialCommandGroup(
+                ParallelCommandGroup(
+                    ArmControlCommand(arm, 180.0),
+                    RotatorControlCommand(rotator, 210.0)
+                ),
+                FeederForwardCommand(feeder, 0.8)
+            )
+        )
+
         commandController.L1().whileTrue(
             RepeatCommand(
                 ParallelCommandGroup(
                     IntakeForwardCommand(intake, 0.7),
-                    FeederForwardCommand(feeder, -0.2)
+                    FeederForwardCommand(feeder, -0.25)
                 )
             )
         )
@@ -187,32 +210,14 @@ object RobotContainer {
             RepeatCommand(
                 ParallelCommandGroup(
                     IntakeForwardCommand(intake, -0.7),
-                    FeederForwardCommand(feeder, 0.2)
+                    FeederForwardCommand(feeder, 0.25)
                 )
             )
         )
-
-        desiredArmAngle.setListener {
-            commandController.povLeft().onTrue(
-                ParallelCommandGroup(
-                    ArmControlCommand(arm, it),
-                    RotatorControlCommand(rotator, desiredRotatorAngle.value)
-                )
-            )
-        }
-
-        desiredRotatorAngle.setListener {
-            commandController.povLeft().onTrue(
-                ParallelCommandGroup(
-                    ArmControlCommand(arm, desiredArmAngle.value),
-                    RotatorControlCommand(rotator, it)
-                )
-            )
-        }*/
     }
 
     fun getAutonomousCommand(): Command {
-        val path = PathPlannerPath.fromPathFile("Test")
+        val path = PathPlannerPath.fromPathFile("Test2")
         return AutoBuilder.followPath(path)
     }
 }

@@ -41,7 +41,7 @@ class Rotator(
 
     private var pidController: PIDController = PIDController(0.0,0.0,0.0)
 
-    private val encoder = CANcoder(19) // TODO: Change CANcoder ID
+    private val encoder = CANcoder(19)
 
     private var lastLog: Long = 0L
 

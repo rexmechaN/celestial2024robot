@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command
 class ShooterControlCommand(
     private val shooter: Shooter,
     private val durationSeconds: Double,
+    private val rpm: Double = 4500.0,
     private val delay: Double = 0.0
 ) : Command() {
 
@@ -24,7 +25,7 @@ class ShooterControlCommand(
         if(timer.get() < delay)
             shooter.setMotor(0.0)
         else
-            shooter.setMotor(4500.0)
+            shooter.setMotor(rpm)
     }
 
     override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)

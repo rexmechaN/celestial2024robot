@@ -4,13 +4,14 @@ import edu.wpi.first.wpilibj2.command.Command
 import com.teamcelestial.subsystems.Drivetrain
 
 class RobotDriveCommand(
+    private val drivetrain: Drivetrain,
     private val xSupplier: () -> Double,
     private val ySupplier: () -> Double,
     private val limiterSupplier: () -> Double = { 1.0 }
 ) : Command() {
 
     init {
-        addRequirements(Drivetrain)
+        addRequirements(drivetrain)
     }
 
     override fun initialize() {}
@@ -18,7 +19,7 @@ class RobotDriveCommand(
     override fun execute() {
         val x = xSupplier() * limiterSupplier()
         val y = ySupplier() * limiterSupplier()
-        Drivetrain.drive(x, y)
+        drivetrain.drive(x, y)
     }
 
     override fun isFinished(): Boolean = false

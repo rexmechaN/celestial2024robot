@@ -28,7 +28,7 @@ class Arm(
     )
 
     val availabilityProvider = {
-        state.theta > 145.0
+        state.theta > 130.0
     }
 
     private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.25)
@@ -40,12 +40,7 @@ class Arm(
 
     private var pidController: PIDController = PIDController(0.0,0.0,0.0)
 
-    private val leftLimiter = SlewRateLimiter(0.3)
-    private val rightLimiter = SlewRateLimiter(0.3)
-
-    private val encoder = CANcoder(17)
-
-    private var lastLog: Long = 0L
+    private val encoder = CANcoder(5)
 
     init {
         updatePIDController()
@@ -67,13 +62,10 @@ class Arm(
     }
 
     private fun tick() {
-        val c1 = System.currentTimeMillis()
         updateTheta()
-        val c2 = System.currentTimeMillis()
         updateOutput()
-        val c3 = System.currentTimeMillis()
         updateMotors()
-        val c4 = System.currentTimeMillis()
+
         SmartDashboard.putNumber("Arm PID-P:", pidController.p)
         SmartDashboard.putNumber("Arm PID-I:", pidController.i)
         SmartDashboard.putNumber("Arm PID-D:", pidController.d)
