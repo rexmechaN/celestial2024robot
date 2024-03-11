@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkPIDController
 import com.teamcelestial.math.solver.NumericalSolver
 import com.teamcelestial.math.util.toRadians
+import com.teamcelestial.system.shooter.ShooterCalcResult
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 import kotlin.math.*
@@ -48,7 +49,7 @@ class Shooter: SubsystemBase() {
         }
     }
 
-    fun start(distance: Double, height: Double) {
+    fun start(distance: Double, height: Double): ShooterCalcResult {
         startTime = System.currentTimeMillis()
 
         NumericalSolver(
@@ -59,8 +60,7 @@ class Shooter: SubsystemBase() {
         }.solveFor(calculateApproximateRpmTargetWithoutFlightData(height)).let {
             targetRpm = it.y
             targetTheta = it.x
-            println("Target RPM: $targetRpm")
-            println("Target Theta: $targetTheta")
+            return ShooterCalcResult(rpm = targetRpm, theta = targetTheta)
         }
     }
 
