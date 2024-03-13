@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkPIDController
 import com.teamcelestial.math.solver.NumericalSolver
+import com.teamcelestial.math.solver.NumericalSolverMode
 import com.teamcelestial.math.util.toRadians
 import com.teamcelestial.system.shooter.ShooterCalcResult
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -57,10 +58,12 @@ class Shooter: SubsystemBase() {
             0.1
         ) {
             calculateRpm(distance, height, it)
-        }.solveFor(calculateApproximateRpmTargetWithoutFlightData(height)).let {
+        }.solveFor(calculateRpm(distance, height, (atan(height / distance) * 180.0 / Math.PI) * 1.5).also {
+            println("RPM target $it")
+        }, solverMode = NumericalSolverMode.BEST_RESULT).let {
             if(runMotors) targetRpm = it.y
             if(runMotors) targetTheta = it.x
-            return ShooterCalcResult(rpm = it.y, theta = it.x).also {shooterCalcResult ->
+            return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
                 println(shooterCalcResult)
             }
         }
