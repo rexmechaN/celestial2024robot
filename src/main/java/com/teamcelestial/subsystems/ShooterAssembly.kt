@@ -22,6 +22,10 @@ object ShooterAssembly {
         return link2Theta - link1Theta
     }
 
+    fun getLink1Theta(): Double {
+        return arm.getTheta() - 90.0
+    }
+
     fun wander() {
         state = ShooterAssemblyState.wandering
         update()
