@@ -8,16 +8,18 @@ class NumericalSolver(
     private val step: Double,
     private val test: ((Double) -> Double),
 ) {
-    fun solveFor(target: Double, solverMode: NumericalSolverMode): SolverResult {
+    fun solveFor(target: Double, solverMode: NumericalSolverMode, toleranceRate: Double = 0.0): SolverResult {
         var current: Double = range.first.toDouble()
         var error: Double = Double.MAX_VALUE
         var best: Double = current
         var bestValue: Double = Double.MAX_VALUE
+        val tolerance = target * toleranceRate
         while (current <= range.last) {
             test(current).let {value ->
                 (value - target).let {
-                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM && error != Double.MAX_VALUE && error > 0 && it <= 0) return SolverResult(current, value)
-                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MAXIMUM && error != Double.MAX_VALUE && error < 0 && it >= 0) return SolverResult(current, value)
+                    val toleratedError = if(error != Double.MAX_VALUE) { error - toleranceRate } else Double.MAX_VALUE
+                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM && toleratedError != Double.MAX_VALUE && toleratedError > 0 && it - tolerance <= 0) return SolverResult(current, value)
+                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MAXIMUM && toleratedError != Double.MAX_VALUE && toleratedError < 0 && it - tolerance >= 0) return SolverResult(current, value)
                     if (it.absoluteValue < error.absoluteValue) {
                         best = current
                         bestValue = value
