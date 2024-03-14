@@ -48,7 +48,7 @@ class Shooter: SubsystemBase() {
         targetRpm = rpm
     }
 
-    fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {
+    fun start(distance: Double, height: Double, runMotors: Boolean = true, thetaOverride: Double? = null): ShooterCalcResult {
         startTime = System.currentTimeMillis()
 
         NumericalSolver(
@@ -56,9 +56,11 @@ class Shooter: SubsystemBase() {
             0.1
         ) {
             calculateRpm(distance, height, it - 4.0)
-        }.solveFor(min(4800.0, 2200.0 + distance * 450).also {
+        }.solveFor(min(4800.0, thetaOverride?.let {
+            calculateRpm(distance, height, it)
+        } ?: (2200.0 + distance * 450).also {
             println("RPM target $it")
-        }, solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
+        }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
             if(runMotors) targetRpm = it.y
             if(runMotors) targetTheta = it.x
             return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->

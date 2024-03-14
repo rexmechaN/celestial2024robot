@@ -8,7 +8,7 @@ object ShooterAssembly {
     private lateinit var rotator: Rotator
     private lateinit var shooter: Shooter
     private var state = ShooterAssemblyState.idle
-    private var targetTheta: Double = 0.0
+    private var target: ShooterTarget? = null
 
     fun initializeWithSubsystems(arm: Arm, rotator: Rotator, shooter: Shooter) {
         this.arm = arm
@@ -61,9 +61,16 @@ object ShooterAssembly {
 
     fun aimForTarget(shooterTarget: ShooterTarget) {
         println(shooterTarget)
+        target = shooterTarget
         val result = shooterTarget.getTargetDistanceAndHeightPair(shooter)
         println(result)
         shooter.start(result.first, result.second, runMotors = false)
         //state = ShooterAssemblyState.arming
+    }
+
+    fun shootBestAttempt() {
+        val result = target!!.getTargetDistanceAndHeightPair(shooter)
+        println(result)
+        shooter.start(result.first, result.second, runMotors = true, thetaOverride = getShooterAbsTheta())
     }
 }
