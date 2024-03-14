@@ -32,8 +32,8 @@ class Arm(
     }
 
     private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.25)
-    private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 3.3)
-    private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, 3.5)
+    private var iValue: NetworkValue<Double> = NetworkValue("arm_I", NetworkValueType.kDouble, 3.5)
+    private var dValue: NetworkValue<Double> = NetworkValue("arm_D", NetworkValueType.kDouble, 3.3)
 
     private val leftArm = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
     private val rightArm = CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless)
@@ -51,6 +51,8 @@ class Arm(
 
     val atSetpoint: Boolean
         get() = abs(state.targetTheta - state.theta) <= 5.0
+
+    fun atSpecificSetpoint(tolerance: Double): Boolean = abs(state.targetTheta - state.theta) <= tolerance
 
     override fun periodic() {
         tick()
@@ -97,7 +99,7 @@ class Arm(
     }
 
     private fun updateOutput() {
-        state = if(state.theta > 195)
+        state = if(state.theta > 200)
             state.copy(output = 0.0)
         else
             state.copy(output = pidController.calculate(state.theta).let {

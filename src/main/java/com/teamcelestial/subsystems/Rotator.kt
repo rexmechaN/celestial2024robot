@@ -35,7 +35,7 @@ class Rotator(
         (state.theta - 180).absoluteValue < 15.0
     }
 
-    private var pValue: NetworkValue<Double> = NetworkValue("rot_P", NetworkValueType.kDouble, 2.6)
+    private var pValue: NetworkValue<Double> = NetworkValue("rot_P", NetworkValueType.kDouble, 2.4)
     private var iValue: NetworkValue<Double> = NetworkValue("rot_I", NetworkValueType.kDouble, 4.0)
     private var dValue: NetworkValue<Double> = NetworkValue("rot_D", NetworkValueType.kDouble, 5.0)
 
@@ -54,6 +54,8 @@ class Rotator(
 
    val atSetpoint: Boolean
         get() = abs(state.targetTheta - state.theta) <= 5.0
+
+    fun atSpecificSetpoint(tolerance: Double) = abs(state.targetTheta - state.theta) <= tolerance
 
     override fun periodic() {
         tick()
