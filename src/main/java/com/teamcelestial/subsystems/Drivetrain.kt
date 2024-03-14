@@ -1,6 +1,5 @@
 package com.teamcelestial.subsystems
 
-import com.ctre.phoenix6.hardware.CANcoder
 import com.kauailabs.navx.frc.AHRS
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.util.ReplanningConfig
@@ -9,7 +8,6 @@ import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
 import com.revrobotics.SparkPIDController
 import com.teamcelestial.constant.DrivetrainConstant
-import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
@@ -46,17 +44,20 @@ class Drivetrain: SubsystemBase() {
     private val robotDrive =  DifferentialDrive(leftMaster, rightMaster)
 
     private val leftEncoder = Encoder(8,9, false, CounterBase.EncodingType.k1X)
-    private val rightEncoder = CANcoder(30)
+    private val rightEncoder = Encoder(0, 1, false, CounterBase.EncodingType.k1X)
+
+    //private val testCoder = CANcoder(30)
+
     private val navx2 = AHRS(SPI.Port.kMXP)
 
-    private val leftPid = PIDController(0.1800, 0.0, 0.0)
-    private val rightPid = PIDController(0.1800, 0.0, 0.0)
+    private val leftPid = PIDController(0.0, 0.0, 0.0)
+    private val rightPid = PIDController(0.0, 0.0, 0.0)
 
     private val kinematics = DifferentialDriveKinematics(0.66)
     private val odometry = DifferentialDriveOdometry(
         navx2.rotation2d,
-        0.0,
-        0.0
+        leftEncoder.distance,
+        rightEncoder.distance
     )
 
     private val m_appliedVoltage: MutableMeasure<Voltage> = mutable(Volts.of(0.0))
@@ -81,38 +82,27 @@ class Drivetrain: SubsystemBase() {
                             leftMaster.appliedOutput * leftMaster.busVoltage, Volts
                         )
                     )
-                    .linearPosition(m_distance.mut_replace(leftEncoderMeters, Meters))
-                    .linearVelocity(m_velocity.mut_replace(leftVelocity, MetersPerSecond))
+                    .linearPosition(m_distance.mut_replace(leftEncoder.distance, Meters))
+                    .linearVelocity(m_velocity.mut_replace(leftEncoder.rate, MetersPerSecond))
 
                 it.motor("drive-right")
                     .voltage(
                         m_appliedVoltage.mut_replace(
                             rightMaster.appliedOutput * rightMaster.busVoltage, Volts))
-                    .linearPosition(m_distance.mut_replace(rightEncoderMeters, Meters))
-                    .linearVelocity(m_velocity.mut_replace(rightVelocity, MetersPerSecond))
+                    .linearPosition(m_distance.mut_replace(leftEncoder.distance, Meters))
+                    .linearVelocity(m_velocity.mut_replace(rightEncoder.rate, MetersPerSecond))
             },
             this
         )
     )
 
-    private val leftEncoderMeters
-        get() = leftEncoder.distance
-
-    private val rightEncoderMeters
-        get() = rightEncoder.position.valueAsDouble * DrivetrainConstant.WHEEL_CIRCUMFERENCE
-
-    private val leftVelocity
-        get() = leftEncoder.rate
-
-    private val rightVelocity
-        get() = rightEncoder.velocity.valueAsDouble * DrivetrainConstant.WHEEL_CIRCUMFERENCE
-
     init {
-        initDriveTrainPIDController()
+        initDrivetrainPIDController()
         configureMotors()
         resetSensors()
 
         leftEncoder.distancePerPulse = DrivetrainConstant.WHEEL_CIRCUMFERENCE * (1.0 / DrivetrainConstant.LEFT_ENCODER_CPR)
+        rightEncoder.distancePerPulse = -DrivetrainConstant.WHEEL_CIRCUMFERENCE * (1.0 / DrivetrainConstant.RIGHT_ENCODER_CPR)
 
         AutoBuilder.configureRamsete(
             ::getPose,
@@ -122,7 +112,7 @@ class Drivetrain: SubsystemBase() {
             ReplanningConfig(),
             {
                 DriverStation.getAlliance().isPresent &&
-                DriverStation.getAlliance().get() == Alliance.Blue
+                DriverStation.getAlliance().get() == Alliance.Red
             },
             this
         )
@@ -132,16 +122,14 @@ class Drivetrain: SubsystemBase() {
         updateOdometryWithSensorValues()
         field.robotPose = getPose()
 
-        println(rightEncoder.position)
-
         SmartDashboard.putData(field)
         SmartDashboard.putNumber("Odometry X", odometry.poseMeters.x)
         SmartDashboard.putNumber("Odometry Y", odometry.poseMeters.y)
         SmartDashboard.putNumber("NavX", navx2.rotation2d.degrees)
-        SmartDashboard.putNumber("Left Encoder", leftEncoderMeters)
-        SmartDashboard.putNumber("Right Encoder", rightEncoderMeters)
-        SmartDashboard.putNumber("Left Velocity", leftVelocity)
-        SmartDashboard.putNumber("Right Velocity", rightVelocity)
+        SmartDashboard.putNumber("Left Encoder", leftEncoder.distance)
+        SmartDashboard.putNumber("Right Encoder", rightEncoder.distance)
+        SmartDashboard.putNumber("Left Velocity", leftEncoder.rate)
+        SmartDashboard.putNumber("Right Velocity", rightEncoder.rate)
     }
 
     fun drive(x: Double, y: Double) {
@@ -149,45 +137,41 @@ class Drivetrain: SubsystemBase() {
         robotDrive.arcadeDrive(y, steer)
     }
 
-    fun pidDrive(speeds: ChassisSpeeds) {
+    private fun pidDrive(speeds: ChassisSpeeds) {
         val diffSpeeds = kinematics.toWheelSpeeds(speeds)
         println("Speed: $diffSpeeds")
-        val leftSpeed = -leftPid.calculate(leftVelocity, diffSpeeds.leftMetersPerSecond)
-        val rightSpeed = -rightPid.calculate(rightVelocity, diffSpeeds.rightMetersPerSecond)
+        val leftSpeed = -diffSpeeds.leftMetersPerSecond //-leftPid.calculate(leftEncoder.rate, diffSpeeds.leftMetersPerSecond)
+        val rightSpeed = -diffSpeeds.rightMetersPerSecond //-rightPid.calculate(rightEncoder.rate, diffSpeeds.rightMetersPerSecond)
         println("Left Speed: $leftSpeed")
         println("Right Speed: $rightSpeed")
-        leftMaster.set(-leftPid.calculate(leftVelocity, diffSpeeds.leftMetersPerSecond))
-        rightMaster.set(-rightPid.calculate(rightVelocity, diffSpeeds.rightMetersPerSecond))
-        /*val leftRpm = min(180.0, diffSpeeds.leftMetersPerSecond * 60 / (DrivetrainConstant.WHEEL_CIRCUMFERENCE))
-        val rightRpm = min(180.0, diffSpeeds.rightMetersPerSecond * 60 / (DrivetrainConstant.WHEEL_CIRCUMFERENCE))
-        println("Left: $leftRpm")
-        println("Right: $rightRpm")
-        leftPid.setReference(-leftRpm, CANSparkBase.ControlType.kVelocity)
-        rightPid.setReference(-rightRpm, CANSparkBase.ControlType.kVelocity)*/
+        leftMaster.set(leftSpeed)
+        rightMaster.set(rightSpeed)
     }
 
     fun getPose(): Pose2d = odometry.poseMeters
 
     fun getDegrees(): Double = navx2.rotation2d.degrees
 
-    fun resetOdometry(pose: Pose2d) =
+    fun resetOdometry(pose: Pose2d) {
+        //resetSensors()
         odometry.resetPosition(
             navx2.rotation2d,
-            leftEncoderMeters,
-            rightEncoderMeters,
+            leftEncoder.distance,
+            rightEncoder.distance,
             pose
         )
+    }
 
 
     fun getWheelSpeeds(): DifferentialDriveWheelSpeeds =
-        DifferentialDriveWheelSpeeds(leftEncoder.rate, rightEncoder.velocity.valueAsDouble * DrivetrainConstant.WHEEL_CIRCUMFERENCE)
+        DifferentialDriveWheelSpeeds(leftEncoder.rate, rightEncoder.rate)
 
 
     fun getCurrentSpeeds(): ChassisSpeeds =
         kinematics.toChassisSpeeds(getWheelSpeeds())
 
     private fun updateOdometryWithSensorValues() {
-        odometry.update(navx2.rotation2d, leftEncoderMeters, rightEncoderMeters);
+        odometry.update(navx2.rotation2d, leftEncoder.distance, rightEncoder.distance);
     }
 
     fun sysIdQuasistatic(direction: SysIdRoutine.Direction): Command {
@@ -213,11 +197,17 @@ class Drivetrain: SubsystemBase() {
 
     fun resetSensors() {
         leftEncoder.reset()
-        rightEncoder.setPosition(0.0)
+        rightEncoder.reset()
         navx2.reset()
     }
 
-    private fun initDriveTrainPIDController() {
+    private fun initDrivetrainPIDController() {
+        val p = 0.24
+        val d = 0.000000
+        leftPid.p = p
+        leftPid.d = d
+        rightPid.p = p
+        rightPid.d = d
         /*leftPid.p = 0.0018687046632124
         leftPid.i = 0.0
         leftPid.d = 0.0

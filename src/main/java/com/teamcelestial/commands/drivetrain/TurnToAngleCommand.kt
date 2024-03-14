@@ -1,4 +1,4 @@
-package com.teamcelestial.commands.subsystem
+package com.teamcelestial.commands.drivetrain
 
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
@@ -32,7 +32,7 @@ class TurnToAngleCommand(
 
     override fun execute() {
         val x = angularPid.calculate(drivetrain.getDegrees(), targetAngle)
-        val output = min(abs(x), 0.8) * -x.sign
+        val output = min(abs(x), 0.9) * -x.sign
         SmartDashboard.putNumber("Target Output", output)
         drivetrain.drive(output, 0.0)
     }
