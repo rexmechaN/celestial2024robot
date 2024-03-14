@@ -63,7 +63,7 @@ object ShooterAssembly {
         println(shooterTarget)
         val result = shooterTarget.getTargetDistanceAndHeightPair(shooter)
         println(result)
-        shooter.start(result.first, result.second, runMotors = true)
+        shooter.start(result.first, result.second, runMotors = false)
         //state = ShooterAssemblyState.arming
     }
 }

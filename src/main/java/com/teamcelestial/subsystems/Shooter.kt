@@ -36,8 +36,16 @@ class Shooter: SubsystemBase() {
     private val ballWeight = 0.230
     private val ballFinalSpeedTarget = 0.2
 
-    fun tick() {
+    override fun periodic() {
+        tick()
+    }
+
+    private fun tick() {
         setMotor(targetRpm)
+    }
+
+    fun setTargetRPM(rpm: Double){
+        targetRpm = rpm
     }
 
     fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {
@@ -107,8 +115,15 @@ class Shooter: SubsystemBase() {
         return calculateRpmForVelocity(v + calculateAirResistanceMinusV(v, t))
     }
 
-    fun atSetpoint(): Boolean = encoders.all {
-        abs(targetRpm - it.velocity) <= 50
+    fun atSetpoint(): Boolean {
+        encoders.forEach {
+            println("Target rpm: $targetRpm")
+            println("velocity: ${it.velocity}")
+        }
+
+        return encoders.all {
+            abs(targetRpm + it.velocity) <= 50
+        }
     }
 
     private fun setupPid(controller: SparkPIDController?) {

@@ -28,7 +28,7 @@ class TurnToVisionTargetCommand(
     }
 
     override fun execute() {
-        println(targetAngleSupplier())
+        //println(targetAngleSupplier())
         val x = angularPid.calculate(targetAngleSupplier(), 0.0)
         val output = min(abs(x), 0.7) * -x.sign
         drivetrain.drive(output, forwardSupplier())

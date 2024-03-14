@@ -20,13 +20,13 @@ class ShooterControlCommand(
     }
 
     override fun execute() {
-        shooter.setMotor(rpm)
-        if(shooter.atSetpoint()) timer.start()
+        shooter.setTargetRPM(rpm)
+        //if(shooter.atSetpoint()) timer.start()
     }
 
-    override fun isFinished(): Boolean = durationSeconds != null && timer.hasElapsed(durationSeconds)
+    override fun isFinished(): Boolean = shooter.atSetpoint()
 
     override fun end(interrupted: Boolean) {
-        shooter.setMotor(0.0)
+        //shooter.setMotor(0.0)
     }
 }

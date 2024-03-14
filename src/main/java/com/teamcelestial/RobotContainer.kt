@@ -11,6 +11,7 @@ import com.teamcelestial.commands.custom.VisionBasedShootCommand
 import com.teamcelestial.commands.drivetrain.RobotDriveCommand
 import com.teamcelestial.commands.drivetrain.TurnToAngleCommand
 import com.teamcelestial.commands.drivetrain.TurnToVisionTargetCommand
+import com.teamcelestial.commands.feeder.FeederControlCommand
 import com.teamcelestial.commands.feeder.FeederForwardCommand
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.RepeatCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
 
 object RobotContainer {
@@ -172,15 +174,24 @@ object RobotContainer {
         )
 
         commandController.circle().whileTrue(
-            /*TurnToVisionTargetCommand(drivetrain, {
-                cameraOutput.bestTarget?.yaw ?: 0.0
-            },{ controller.leftY * 0.6 })*/
-            VisionBasedShootCommand(arm, rotator, 180.0)
+            ParallelCommandGroup(
+
+                VisionBasedShootCommand(arm, rotator, 180.0)
+            )
         )
 
         desiredShooterRpm.setListener {
-            commandController.L2().whileTrue(
-                ShooterControlCommand(shooter, it, 2.0)
+            commandController.L2().onTrue(
+                SequentialCommandGroup(
+                    ShooterControlCommand(shooter, it),
+                    ParallelCommandGroup(
+                        FeederControlCommand(feeder, 2.0, 0.0, -1.0),
+                        SequentialCommandGroup(
+                            WaitCommand(2.0),
+                            ShooterControlCommand(shooter, 0.0)
+                        )
+                    )
+                )
             )
         }
 
@@ -230,7 +241,7 @@ object RobotContainer {
             RepeatCommand(
                 ParallelCommandGroup(
                     IntakeForwardCommand(intake, 0.7),
-                    FeederForwardCommand(feeder, -1.0)
+                    FeederForwardCommand(feeder, -0.3)
                 )
             )
         )

@@ -26,7 +26,7 @@ class FeederControlCommand(
         if(timer.get() < delay)
             feeder.setMotor(0.0)
         else
-            feeder.setMotor(-0.2 * powerConstant)
+            feeder.setMotor(powerConstant)
     }
 
     override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)

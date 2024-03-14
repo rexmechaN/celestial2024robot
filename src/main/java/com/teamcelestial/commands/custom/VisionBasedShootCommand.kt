@@ -23,7 +23,7 @@ class VisionBasedShootCommand(
             val y = cameraOutput.bestTarget?.bestCameraToTarget?.y
             val z = cameraOutput.bestTarget?.bestCameraToTarget?.z
             if(x != null && y != null && z != null) {
-                val target = AbsoluteShooterTarget(x, 1.98)
+                val target = AbsoluteShooterTarget(x, 2.06)
                 ShooterAssembly.aimForTarget(target)
             }
         }
