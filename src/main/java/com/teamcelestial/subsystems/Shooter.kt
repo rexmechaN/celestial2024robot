@@ -55,7 +55,7 @@ class Shooter: SubsystemBase() {
             5..90,
             0.1
         ) {
-            calculateRpm(distance, height, it - 4.0)
+            calculateRpm(distance, height, it)
         }.solveFor(min(4800.0, thetaOverride?.let {
             calculateRpm(distance, height, it)
         } ?: (2200.0 + distance * 450).also {
