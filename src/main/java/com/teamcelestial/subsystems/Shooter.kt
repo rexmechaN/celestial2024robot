@@ -50,7 +50,7 @@ class Shooter: SubsystemBase() {
             calculateRpm(distance, height, it)
         }.solveFor(min(5000.0, (calculateRpm(distance, height, (atan(height / distance) * 180.0 / Math.PI) * 1.33) * 1.33)).also {
             println("RPM target $it")
-        }, solverMode = NumericalSolverMode.BEST_RESULT).let {
+        }, solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
             if(runMotors) targetRpm = it.y
             if(runMotors) targetTheta = it.x
             return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
