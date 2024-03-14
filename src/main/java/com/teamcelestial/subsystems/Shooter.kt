@@ -1,9 +1,6 @@
 package com.teamcelestial.subsystems
 
-import com.revrobotics.CANSparkBase
-import com.revrobotics.CANSparkLowLevel
-import com.revrobotics.CANSparkMax
-import com.revrobotics.SparkPIDController
+import com.revrobotics.*
 import com.teamcelestial.math.solver.NumericalSolver
 import com.teamcelestial.math.solver.NumericalSolverMode
 import com.teamcelestial.math.util.toRadians
@@ -13,12 +10,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.*
 
 class Shooter: SubsystemBase() {
-    private val leftCim = CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushless)
-    private val rightCim = CANSparkMax(16, CANSparkLowLevel.MotorType.kBrushless)
+    private val leftNeo = CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushless)
+    private val rightNeo = CANSparkMax(16, CANSparkLowLevel.MotorType.kBrushless)
 
-    private val leftPid = leftCim.pidController
-    private val rightPid = rightCim.pidController
+    private val leftPid = leftNeo.pidController
+    private val rightPid = rightNeo.pidController
     private val pidControllers = listOf(leftPid, rightPid)
+
+    private val encoders = listOf(
+        leftNeo.getEncoder(),
+        rightNeo.getEncoder()
+    )
 
     init {
         setupPid(leftPid)
@@ -58,7 +60,7 @@ class Shooter: SubsystemBase() {
             0.1
         ) {
             calculateRpm(distance, height, it)
-        }.solveFor(calculateRpm(distance, height, (atan(height / distance) * 180.0 / Math.PI) * 1.5).also {
+        }.solveFor(min(5000.0, (calculateRpm(distance, height, (atan(height / distance) * 180.0 / Math.PI) * 1.33) * 1.1)).also {
             println("RPM target $it")
         }, solverMode = NumericalSolverMode.BEST_RESULT).let {
             if(runMotors) targetRpm = it.y
@@ -102,7 +104,7 @@ class Shooter: SubsystemBase() {
         if (reference == rpm) return
         reference = rpm
         println("Set motor: $rpm")
-        println("motor power ${leftCim.get()}")
+        println("motor power ${leftNeo.get()}")
         pidControllers.forEach {
             it.setReference(-rpm, CANSparkBase.ControlType.kVelocity)
         }
@@ -115,6 +117,10 @@ class Shooter: SubsystemBase() {
         val t = distance / (v * cos(theta))
         // Flywheel speed is not equal to ring speed since the contact happens for a short time
         return calculateRpmForVelocity(v + calculateAirResistanceMinusV(v, t))
+    }
+
+    fun atSetpoint(): Boolean = encoders.all {
+        abs(targetRpm - it.velocity) <= 50
     }
 
     private fun setupPid(controller: SparkPIDController?) {
