@@ -1,26 +1,26 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 1.37,
+      "y": 5.55
+    },
+    "rotation": 180.0
+  },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "closeDistanceShoot"
+            "pathName": "Middle Note"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Take Note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Speaker"
+            "pathName": "Middle Speaker"
           }
         }
       ]
