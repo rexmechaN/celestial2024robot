@@ -1,4 +1,4 @@
-package com.teamcelestial.commands.subsystem
+package com.teamcelestial.commands.arm
 
 import com.teamcelestial.subsystems.Arm
 import edu.wpi.first.wpilibj2.command.Command

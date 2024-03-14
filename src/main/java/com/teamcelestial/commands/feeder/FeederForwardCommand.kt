@@ -1,4 +1,4 @@
-package com.teamcelestial.commands.subsystem
+package com.teamcelestial.commands.feeder
 
 import com.teamcelestial.subsystems.Feeder
 import edu.wpi.first.wpilibj.Timer

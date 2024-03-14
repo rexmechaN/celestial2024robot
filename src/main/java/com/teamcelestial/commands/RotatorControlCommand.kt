@@ -1,4 +1,4 @@
-package com.teamcelestial.commands.subsystem
+package com.teamcelestial.commands
 
 import com.teamcelestial.subsystems.Feeder
 import com.teamcelestial.subsystems.Rotator
@@ -6,7 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command
 
 class RotatorControlCommand(
     private val rotator: Rotator,
-    private val targetTheta: Double
+    private val targetTheta: Double,
+    private val tolerance: Double? = null
 ): Command() {
 
     var isSetted = false
@@ -24,7 +25,8 @@ class RotatorControlCommand(
         }
     }
 
-    override fun isFinished(): Boolean = rotator.atSetpoint
+    override fun isFinished(): Boolean =
+        if(tolerance != null) rotator.atSpecificSetpoint(tolerance) else rotator.atSetpoint
 
     override fun end(interrupted: Boolean) { isSetted = false }
 }

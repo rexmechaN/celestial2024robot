@@ -1,19 +1,20 @@
-package com.teamcelestial.commands.subsystem
+package com.teamcelestial.commands.feeder
 
-import com.teamcelestial.subsystems.Shooter
+import com.teamcelestial.subsystems.Feeder
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
-class ShooterControlCommand(
-    private val shooter: Shooter,
+
+class FeederControlCommand(
+    private val feeder: Feeder,
     private val durationSeconds: Double,
-    private val rpm: Double = 4500.0,
-    private val delay: Double = 0.0
+    private val delay: Double = 0.0,
+    private val powerConstant: Double = 1.0
 ) : Command() {
 
     private val timer = Timer()
 
     init {
-        addRequirements(shooter)
+        addRequirements(feeder)
     }
 
     override fun initialize() {
@@ -23,15 +24,15 @@ class ShooterControlCommand(
 
     override fun execute() {
         if(timer.get() < delay)
-            shooter.setMotor(0.0)
+            feeder.setMotor(0.0)
         else
-            shooter.setMotor(rpm)
+            feeder.setMotor(-0.2 * powerConstant)
     }
 
     override fun isFinished(): Boolean = timer.get() >= (durationSeconds + delay)
 
     override fun end(interrupted: Boolean) {
-        shooter.setMotor(0.0)
+        feeder.setMotor(0.0)
         timer.reset()
     }
 }

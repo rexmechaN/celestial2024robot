@@ -1,6 +1,6 @@
 package com.teamcelestial
 
-import com.teamcelestial.commands.subsystem.RobotDriveCommand
+import com.teamcelestial.commands.drivetrain.RobotDriveCommand
 import com.teamcelestial.subsystems.Drivetrain
 import edu.wpi.first.wpilibj.PS4Controller
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller

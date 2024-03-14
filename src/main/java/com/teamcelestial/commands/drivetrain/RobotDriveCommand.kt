@@ -1,4 +1,4 @@
-package com.teamcelestial.commands.subsystem
+package com.teamcelestial.commands.drivetrain
 
 import edu.wpi.first.wpilibj2.command.Command
 import com.teamcelestial.subsystems.Drivetrain
