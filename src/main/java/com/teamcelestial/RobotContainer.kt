@@ -185,9 +185,9 @@ object RobotContainer {
                 SequentialCommandGroup(
                     ShooterControlCommand(shooter, it),
                     ParallelCommandGroup(
-                        FeederControlCommand(feeder, 2.0, 0.0, -1.0),
+                        FeederControlCommand(feeder, 2.0, 1.0, -1.0),
                         SequentialCommandGroup(
-                            WaitCommand(2.0),
+                            WaitCommand(3.0),
                             ShooterControlCommand(shooter, 0.0)
                         )
                     )
