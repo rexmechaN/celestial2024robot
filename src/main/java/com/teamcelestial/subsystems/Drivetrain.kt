@@ -1,5 +1,6 @@
 package com.teamcelestial.subsystems
 
+import com.ctre.phoenix6.hardware.CANcoder
 import com.kauailabs.navx.frc.AHRS
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.util.ReplanningConfig
@@ -44,9 +45,21 @@ class Drivetrain: SubsystemBase() {
     private val robotDrive =  DifferentialDrive(leftMaster, rightMaster)
 
     private val leftEncoder = Encoder(8,9, false, CounterBase.EncodingType.k1X)
-    private val rightEncoder = Encoder(0, 1, false, CounterBase.EncodingType.k1X)
+    //private val rightEncoder = Encoder(0, 1, false, CounterBase.EncodingType.k1X)
+    private val rightEncoder = CANcoder(30)
 
-    //private val testCoder = CANcoder(30)
+    private val leftEncoderMeters
+        get() = leftEncoder.distance
+
+    private val rightEncoderMeters
+        get() = rightEncoder.position.valueAsDouble * DrivetrainConstant.WHEEL_CIRCUMFERENCE
+
+    private val leftVelocity
+        get() = leftEncoder.rate
+
+    private val rightVelocity
+        get() = rightEncoder.velocity.valueAsDouble * DrivetrainConstant.WHEEL_CIRCUMFERENCE
+
 
     private val navx2 = AHRS(SPI.Port.kMXP)
 
@@ -56,8 +69,8 @@ class Drivetrain: SubsystemBase() {
     private val kinematics = DifferentialDriveKinematics(0.66)
     private val odometry = DifferentialDriveOdometry(
         navx2.rotation2d,
-        leftEncoder.distance,
-        rightEncoder.distance
+        leftEncoderMeters,
+        rightEncoderMeters
     )
 
     private val m_appliedVoltage: MutableMeasure<Voltage> = mutable(Volts.of(0.0))
@@ -82,15 +95,15 @@ class Drivetrain: SubsystemBase() {
                             leftMaster.appliedOutput * leftMaster.busVoltage, Volts
                         )
                     )
-                    .linearPosition(m_distance.mut_replace(leftEncoder.distance, Meters))
-                    .linearVelocity(m_velocity.mut_replace(leftEncoder.rate, MetersPerSecond))
+                    .linearPosition(m_distance.mut_replace(leftEncoderMeters, Meters))
+                    .linearVelocity(m_velocity.mut_replace(leftVelocity, MetersPerSecond))
 
                 it.motor("drive-right")
                     .voltage(
                         m_appliedVoltage.mut_replace(
                             rightMaster.appliedOutput * rightMaster.busVoltage, Volts))
-                    .linearPosition(m_distance.mut_replace(leftEncoder.distance, Meters))
-                    .linearVelocity(m_velocity.mut_replace(rightEncoder.rate, MetersPerSecond))
+                    .linearPosition(m_distance.mut_replace(rightEncoderMeters, Meters))
+                    .linearVelocity(m_velocity.mut_replace(rightVelocity, MetersPerSecond))
             },
             this
         )
@@ -102,7 +115,6 @@ class Drivetrain: SubsystemBase() {
         resetSensors()
 
         leftEncoder.distancePerPulse = DrivetrainConstant.WHEEL_CIRCUMFERENCE * (1.0 / DrivetrainConstant.LEFT_ENCODER_CPR)
-        rightEncoder.distancePerPulse = -DrivetrainConstant.WHEEL_CIRCUMFERENCE * (1.0 / DrivetrainConstant.RIGHT_ENCODER_CPR)
 
         AutoBuilder.configureRamsete(
             ::getPose,
@@ -126,10 +138,10 @@ class Drivetrain: SubsystemBase() {
         SmartDashboard.putNumber("Odometry X", odometry.poseMeters.x)
         SmartDashboard.putNumber("Odometry Y", odometry.poseMeters.y)
         SmartDashboard.putNumber("NavX", navx2.rotation2d.degrees)
-        SmartDashboard.putNumber("Left Encoder", leftEncoder.distance)
-        SmartDashboard.putNumber("Right Encoder", rightEncoder.distance)
-        SmartDashboard.putNumber("Left Velocity", leftEncoder.rate)
-        SmartDashboard.putNumber("Right Velocity", rightEncoder.rate)
+        SmartDashboard.putNumber("Left Encoder", leftEncoderMeters)
+        SmartDashboard.putNumber("Right Encoder", rightEncoderMeters)
+        SmartDashboard.putNumber("Left Velocity", leftVelocity)
+        SmartDashboard.putNumber("Right Velocity", rightVelocity)
     }
 
     fun drive(x: Double, y: Double) {
@@ -156,22 +168,22 @@ class Drivetrain: SubsystemBase() {
         //resetSensors()
         odometry.resetPosition(
             navx2.rotation2d,
-            leftEncoder.distance,
-            rightEncoder.distance,
+            leftEncoderMeters,
+            rightEncoderMeters,
             pose
         )
     }
 
 
     fun getWheelSpeeds(): DifferentialDriveWheelSpeeds =
-        DifferentialDriveWheelSpeeds(leftEncoder.rate, rightEncoder.rate)
+        DifferentialDriveWheelSpeeds(leftVelocity, rightVelocity)
 
 
     fun getCurrentSpeeds(): ChassisSpeeds =
         kinematics.toChassisSpeeds(getWheelSpeeds())
 
     private fun updateOdometryWithSensorValues() {
-        odometry.update(navx2.rotation2d, leftEncoder.distance, rightEncoder.distance);
+        odometry.update(navx2.rotation2d, leftEncoderMeters, rightEncoderMeters);
     }
 
     fun sysIdQuasistatic(direction: SysIdRoutine.Direction): Command {
@@ -197,7 +209,7 @@ class Drivetrain: SubsystemBase() {
 
     fun resetSensors() {
         leftEncoder.reset()
-        rightEncoder.reset()
+        rightEncoder.setPosition(0.0)
         navx2.reset()
     }
 
