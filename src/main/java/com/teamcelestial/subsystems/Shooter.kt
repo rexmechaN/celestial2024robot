@@ -52,11 +52,11 @@ class Shooter: SubsystemBase() {
         startTime = System.currentTimeMillis()
 
         NumericalSolver(
-            0..90,
+            5..90,
             0.1
         ) {
-            calculateRpm(distance, height, it)
-        }.solveFor(min(4800.0, 2200.0 + distance * 600).also {
+            calculateRpm(distance, height, it - 4.0)
+        }.solveFor(min(4800.0, 2200.0 + distance * 450).also {
             println("RPM target $it")
         }, solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
             if(runMotors) targetRpm = it.y
