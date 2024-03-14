@@ -37,19 +37,7 @@ class Shooter: SubsystemBase() {
     private val ballFinalSpeedTarget = 0.2
 
     fun tick() {
-        if (lastRpmPublish + 500 < System.currentTimeMillis()) {
-            lastRpmPublish = System.currentTimeMillis()
-        }
-        val millis = System.currentTimeMillis() - startTime
-        val target: Double = if (millis < 3000) {
-            targetRpm * 0.33
-        } else {
-            targetRpm
-        }
-        setMotor(target)
-        if (lastRpmPublish + 500 < System.currentTimeMillis()) {
-            lastRpmPublish = System.currentTimeMillis()
-        }
+        setMotor(targetRpm)
     }
 
     fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {
