@@ -20,7 +20,7 @@ fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterC
         0.1
     ) {
         calculateRpm(distance, height, it - 4.0)
-    }.solveFor(min(4800.0, 2200.0 + distance * 450).also {
+    }.solveFor(calculateRpm(distance, height, 37.0).also {
         println("RPM target $it")
     }, solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
         if(runMotors) targetRpm = it.y
@@ -54,7 +54,7 @@ fun stop() {
 }
 
 private fun calculateAirResistanceMinusV(speed: Double, time: Double): Double {
-    return (speed.pow(2) * 2.5 * 0.01208955 / ballWeight) * time
+    return (speed.pow(2) * 2.0 * 0.01208955 / ballWeight) * time
 }
 
 private fun calculateRpmForVelocity(velocity: Double): Double {

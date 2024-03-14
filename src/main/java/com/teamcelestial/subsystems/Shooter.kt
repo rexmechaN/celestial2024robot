@@ -79,7 +79,7 @@ class Shooter: SubsystemBase() {
     }
 
     private fun calculateAirResistanceMinusV(speed: Double, time: Double): Double {
-        return (speed.pow(2) * 2.5 * 0.01208955 / ballWeight) * time
+        return (speed.pow(2) * 2.0 * 0.01208955 / ballWeight) * time
     }
 
     private fun calculateRpmForVelocity(velocity: Double): Double {
