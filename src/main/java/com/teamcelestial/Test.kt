@@ -9,7 +9,7 @@ import com.teamcelestial.system.shooter.ShooterCalcResult
 import kotlin.math.*
 
 fun main() {
-    start(5.0, 1.5)
+    start(1.5, 1.5)
 }
 
 fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {
@@ -20,7 +20,7 @@ fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterC
         0.1
     ) {
         calculateRpm(distance, height, it)
-    }.solveFor(calculateRpm(distance, height, (atan(height / distance) * 180.0 / Math.PI) * 1.5).also {
+    }.solveFor(min(4800.0, 2200.0 + distance * 600).also {
         println("RPM target $it")
     }, solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
         if(runMotors) targetRpm = it.y
