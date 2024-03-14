@@ -9,7 +9,7 @@ import com.teamcelestial.system.shooter.ShooterCalcResult
 import kotlin.math.*
 
 fun main() {
-    start(1.5, 1.5)
+    start(3.8, 1.5)
 }
 
 fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {
@@ -54,7 +54,7 @@ fun stop() {
 }
 
 private fun calculateAirResistanceMinusV(speed: Double, time: Double): Double {
-    return (speed.pow(2) * 0.01208955 / ballWeight) * time
+    return (speed.pow(2) * 2.5 * 0.01208955 / ballWeight) * time
 }
 
 private fun calculateRpmForVelocity(velocity: Double): Double {
