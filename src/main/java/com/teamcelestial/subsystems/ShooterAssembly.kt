@@ -13,7 +13,7 @@ object ShooterAssembly {
     private var shootingStart = 0L
     private var shooterSetpointMillis = 0L
     private var shooterSetpointLatch = false
-    private val shooterGracePeriodMillis = 1000
+    private const val shooterGracePeriodMillis = 3000
     private var target: ShooterTarget? = null
         set(value) {
             field = value
