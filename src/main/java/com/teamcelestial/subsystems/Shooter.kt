@@ -90,7 +90,7 @@ class Shooter: SubsystemBase() {
     private val inertiaDisc1 = 2.125 * 0.0001
     private val inertiaDisc2 = 1.5 * 0.0001
 
-    private val totalInertia = (2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)
+    private val totalInertia = ((2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)) * 0.96
 
     private val rateOfRpmRetention = 0.84
     private fun calculateRpmForEnergyTarget(energyTarget: Double): Double {

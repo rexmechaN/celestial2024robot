@@ -13,9 +13,9 @@ class FinishWanderingCommand(
         addRequirements(arm, rotator)
     }
 
-    override fun execute() {
+    override fun initialize() {
         ShooterAssembly.finishWander()
     }
-
+    override fun execute() {}
     override fun isFinished(): Boolean = arm.atSetpoint && rotator.atSetpoint
 }

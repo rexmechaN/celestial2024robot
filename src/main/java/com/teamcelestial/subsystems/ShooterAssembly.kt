@@ -13,7 +13,7 @@ object ShooterAssembly {
     private var shootingStart = 0L
     private var shooterSetpointMillis = 0L
     private var shooterSetpointLatch = false
-    private const val shooterGracePeriodMillis = 3000
+    private const val shooterGracePeriodMillis = 500
     private var target: ShooterTarget? = null
         set(value) {
             field = value
@@ -75,10 +75,12 @@ object ShooterAssembly {
                     return update()
                 }
                 val thetaTarget = shooter.start(targetPair!!.first, targetPair!!.second, runMotors = true).theta
-                val link1Theta = 130.0
+                val armTarget = 130.0
+                val link1Theta = armTarget - 90.0
                 val link2Theta = thetaTarget + link1Theta
-                arm.setTargetTheta(link1Theta)
-                rotator.setTargetTheta(link2Theta)
+                val rotatorTarget = rotator.rotatorPreset.defaultTheta - link2Theta
+                arm.setTargetTheta(armTarget)
+                rotator.setTargetTheta(rotatorTarget)
             }
             ShooterAssemblyState.accelerating -> {
                 shootBestAttempt()
@@ -99,10 +101,13 @@ object ShooterAssembly {
             }
             ShooterAssemblyState.accelerating -> {
                 if(shooter.atSetpoint()) {
-                    if(shooterSetpointLatch && System.currentTimeMillis() - shooterSetpointMillis >= shooterGracePeriodMillis){
-                        state = ShooterAssemblyState.shooting
-                        shootingStart = System.currentTimeMillis()
-                        update()
+                    println(System.currentTimeMillis() - shooterSetpointMillis)
+                    if(shooterSetpointLatch) {
+                        if(System.currentTimeMillis() - shooterSetpointMillis >= shooterGracePeriodMillis) {
+                            state = ShooterAssemblyState.shooting
+                            shootingStart = System.currentTimeMillis()
+                            update()
+                        }
                     } else {
                         shooterSetpointMillis = System.currentTimeMillis()
                     }
@@ -141,7 +146,7 @@ object ShooterAssembly {
     }
 
     fun registerTarget(shooterTarget: ShooterTarget) {
-        println("Registering target: $shooterTarget")
+        //println("Registering target: $shooterTarget")
         if (state != ShooterAssemblyState.wandering) return
         target = shooterTarget
         //state = ShooterAssemblyState.arming
