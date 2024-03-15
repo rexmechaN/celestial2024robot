@@ -53,7 +53,7 @@ class Rotator(
     }
 
    val atSetpoint: Boolean
-        get() = abs(state.targetTheta - state.theta) <= 5.0
+        get() = abs(state.targetTheta - state.theta) <= 6.0
 
     fun atSpecificSetpoint(tolerance: Double) = abs(state.targetTheta - state.theta) <= tolerance
 

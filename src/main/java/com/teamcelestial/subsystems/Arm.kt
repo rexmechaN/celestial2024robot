@@ -28,7 +28,7 @@ class Arm(
     )
 
     val availabilityProvider = {
-        state.theta > 130.0
+        state.theta > 120.0
     }
 
     private var pValue: NetworkValue<Double> = NetworkValue("arm_P", NetworkValueType.kDouble, 2.25)
@@ -50,7 +50,7 @@ class Arm(
     }
 
     val atSetpoint: Boolean
-        get() = abs(state.targetTheta - state.theta) <= 5.0
+        get() = abs(state.targetTheta - state.theta) <= 6.0
 
     fun atSpecificSetpoint(tolerance: Double): Boolean = abs(state.targetTheta - state.theta) <= tolerance
 
