@@ -6,5 +6,6 @@ enum class ShooterAssemblyState (
     idle(0),
     wandering(1),
     arming(2),
-    shooting(3),
+    accelerating(3),
+    shooting(4),
 }

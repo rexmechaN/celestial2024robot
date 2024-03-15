@@ -53,7 +53,7 @@ class Shooter: SubsystemBase() {
 
         NumericalSolver(
             5..90,
-            0.1
+            0.5
         ) {
             calculateRpm(distance, height, it)
         }.solveFor(min(4800.0, thetaOverride?.let {
@@ -79,7 +79,7 @@ class Shooter: SubsystemBase() {
     }
 
     private fun calculateAirResistanceMinusV(speed: Double, time: Double): Double {
-        return (speed.pow(2) * 2.0 * 0.01208955 / ballWeight) * time
+        return (speed.pow(2) * 1.0 * 0.01208955 / ballWeight) * time
     }
 
     private fun calculateRpmForVelocity(velocity: Double): Double {
@@ -90,9 +90,9 @@ class Shooter: SubsystemBase() {
     private val inertiaDisc1 = 2.125 * 0.0001
     private val inertiaDisc2 = 1.5 * 0.0001
 
-    private val totalInertia = (2 * churroInertia) + (2 * inertiaDisc1) + (2 * inertiaDisc2)
+    private val totalInertia = (2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)
 
-    private val rateOfRpmRetention = 0.8
+    private val rateOfRpmRetention = 0.84
     private fun calculateRpmForEnergyTarget(energyTarget: Double): Double {
         // Energy is not fully transferred from the flywheel, rateOfRpmRetention is the rate of RPM conserved
         return sqrt((2 * energyTarget) / (totalInertia * (1 - rateOfRpmRetention))) * 60 / (2 * Math.PI)
