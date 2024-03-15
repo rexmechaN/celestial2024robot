@@ -67,12 +67,12 @@ object ShooterAssembly {
                 if(target == null) {
                     println("ShooterAssembly: No target available, aborting.")
                     state = ShooterAssemblyState.idle
-                    update()
+                    return update()
                 }
                 if(targetPair == null) {
                     println("ShooterAssembly: INTERNAL ERROR, targetPair is null. Aborting.")
                     state = ShooterAssemblyState.idle
-                    update()
+                    return update()
                 }
                 val thetaTarget = shooter.start(targetPair!!.first, targetPair!!.second, runMotors = true).theta
                 val link1Theta = 130.0
