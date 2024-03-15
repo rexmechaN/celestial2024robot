@@ -13,6 +13,8 @@ import com.teamcelestial.commands.drivetrain.TurnToAngleCommand
 import com.teamcelestial.commands.drivetrain.TurnToVisionTargetCommand
 import com.teamcelestial.commands.feeder.FeederControlCommand
 import com.teamcelestial.commands.feeder.FeederForwardCommand
+import com.teamcelestial.commands.shooterAssembly.FinishWanderingCommand
+import com.teamcelestial.commands.shooterAssembly.WanderingCommand
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
 import com.teamcelestial.subsystems.*
@@ -39,7 +41,7 @@ object RobotContainer {
 
     private val rotatorPreset = RotatorPresetData(
         defaultTheta = 180.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = 313.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
+        absZeroPointDegrees = 115.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
     )
 
     private val desiredRotatorAngle = NetworkValue<Double>(
@@ -74,7 +76,7 @@ object RobotContainer {
     }
 
     private fun initializeSubsystemDependencies() {
-        ShooterAssembly.initializeWithSubsystems(arm, rotator, shooter)
+        ShooterAssembly.initializeWithSubsystems(arm, rotator, shooter, feeder)
 
         NamedCommands.registerCommand(
             "takeNote",
@@ -132,8 +134,6 @@ object RobotContainer {
         )
     }
 
-    private val cameraOutput = CameraOutput("celestial")
-
     private fun configureBindings() {
         drivetrain.defaultCommand = RobotDriveCommand(
             drivetrain,
@@ -172,28 +172,6 @@ object RobotContainer {
                 )
             )
         )
-
-        commandController.circle().whileTrue(
-            ParallelCommandGroup(
-
-                VisionBasedShootCommand(arm, rotator, 180.0)
-            )
-        )
-
-        desiredShooterRpm.setListener {
-            commandController.L2().onTrue(
-                SequentialCommandGroup(
-                    ShooterControlCommand(shooter, it),
-                    ParallelCommandGroup(
-                        FeederControlCommand(feeder, 2.0, 1.0, -1.0),
-                        SequentialCommandGroup(
-                            WaitCommand(3.0),
-                            ShooterControlCommand(shooter, 0.0)
-                        )
-                    )
-                )
-            )
-        }
 
         commandController.triangle().onTrue(
             SequentialCommandGroup(
@@ -254,6 +232,10 @@ object RobotContainer {
                 )
             )
         )
+
+        commandController.L2()
+            .onTrue(WanderingCommand(arm, rotator))
+            .onFalse(FinishWanderingCommand(arm, rotator))
     }
 
     fun getAutonomousCommand(): Command {
