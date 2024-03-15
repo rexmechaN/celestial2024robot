@@ -93,7 +93,7 @@ object ShooterAssembly {
         when(state) {
             ShooterAssemblyState.arming -> {
                 if(arm.atSetpoint && rotator.atSetpoint) {
-                    state = ShooterAssemblyState.shooting
+                    state = ShooterAssemblyState.accelerating
                     update()
                 }
             }
