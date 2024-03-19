@@ -18,7 +18,8 @@ class TargetShooterCommand(
     shooter: Shooter,
     feeder: Feeder,
     armTargetTheta: Double,
-    rotatorTargetTheta: Double
+    rotatorTargetTheta: Double,
+    targetRpm: Double = 4500.0
 ) : SequentialCommandGroup() {
 
     init {
@@ -27,11 +28,9 @@ class TargetShooterCommand(
                 ArmControlCommand(arm, armTargetTheta),
                 RotatorControlCommand(rotator, rotatorTargetTheta)
             ),
-            FeederControlCommand(feeder, 0.2, 0.0, -1.0),
-            ParallelCommandGroup(
-                FeederControlCommand(feeder, 2.0, 0.8),
-                ShooterControlCommand(shooter, 3.0)
-            )
+            ShooterControlCommand(shooter, targetRpm),
+            FeederControlCommand(feeder, 2.0, 0.0, -1.0),
+            ShooterControlCommand(shooter, 0.0)
         )
     }
 }

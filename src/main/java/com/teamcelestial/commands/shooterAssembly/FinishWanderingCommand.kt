@@ -4,18 +4,25 @@ import com.teamcelestial.subsystems.Arm
 import com.teamcelestial.subsystems.Rotator
 import com.teamcelestial.subsystems.ShooterAssembly
 import edu.wpi.first.wpilibj2.command.Command
+import kotlin.math.abs
 
 class FinishWanderingCommand(
     private val arm: Arm,
     private val rotator: Rotator
 ): Command() {
+
+    private var done = false
+
     init {
         addRequirements(arm, rotator)
     }
 
-    override fun initialize() {
-        ShooterAssembly.finishWander()
+    override fun initialize() {}
+    override fun execute() {
+        if(!done && abs(arm.getTheta() - 180.0) <= 6.0 && abs(rotator.getTheta() - 90.0) <= 6.0) {
+            ShooterAssembly.finishWander()
+            done = true
+        }
     }
-    override fun execute() {}
     override fun isFinished(): Boolean = arm.atSetpoint && rotator.atSetpoint
 }

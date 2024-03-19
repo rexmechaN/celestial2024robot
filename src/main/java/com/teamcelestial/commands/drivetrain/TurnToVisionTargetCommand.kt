@@ -14,9 +14,11 @@ import kotlin.math.sign
 class TurnToVisionTargetCommand(
     private val drivetrain: Drivetrain,
     private val targetAngleSupplier: () -> Double,
-    private val forwardSupplier: () -> Double = {0.0}
+    private val forwardSupplier: () -> Double = {0.0},
+    private val p: Double,
+    private val feedforward: Double
 ): Command() {
-    private val angularPid = PIDController(0.027, 0.000000000, 0.000000005)
+    private val angularPid = PIDController(p, 0.000000000, 0.0)
 
     private val timer = Timer()
 
@@ -29,7 +31,7 @@ class TurnToVisionTargetCommand(
 
     override fun execute() {
         //println(targetAngleSupplier())
-        val x = angularPid.calculate(targetAngleSupplier(), 0.0)
+        val x = angularPid.calculate(targetAngleSupplier(), 0.0) + feedforward
         val output = min(abs(x), 0.7) * -x.sign
         drivetrain.drive(output, forwardSupplier())
     }

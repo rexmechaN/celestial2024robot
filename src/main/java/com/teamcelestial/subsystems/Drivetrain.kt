@@ -12,6 +12,7 @@ import com.teamcelestial.constant.DrivetrainConstant
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry
@@ -34,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import kotlin.math.abs
 import kotlin.math.min
+import kotlin.math.sign
 
 
 class Drivetrain: SubsystemBase() {
@@ -44,7 +46,7 @@ class Drivetrain: SubsystemBase() {
 
     private val robotDrive =  DifferentialDrive(leftMaster, rightMaster)
 
-    private val leftEncoder = Encoder(8,9, false, CounterBase.EncodingType.k1X)
+    private val leftEncoder = Encoder(6,7, false, CounterBase.EncodingType.k1X)
     //private val rightEncoder = Encoder(0, 1, false, CounterBase.EncodingType.k1X)
     private val rightEncoder = CANcoder(30)
 
@@ -95,15 +97,15 @@ class Drivetrain: SubsystemBase() {
                             leftMaster.appliedOutput * leftMaster.busVoltage, Volts
                         )
                     )
-                    .linearPosition(m_distance.mut_replace(leftEncoderMeters, Meters))
-                    .linearVelocity(m_velocity.mut_replace(leftVelocity, MetersPerSecond))
+                    .linearPosition(m_distance.mut_replace(-leftEncoderMeters, Meters))
+                    .linearVelocity(m_velocity.mut_replace(-leftVelocity, MetersPerSecond))
 
                 it.motor("drive-right")
                     .voltage(
                         m_appliedVoltage.mut_replace(
                             rightMaster.appliedOutput * rightMaster.busVoltage, Volts))
-                    .linearPosition(m_distance.mut_replace(rightEncoderMeters, Meters))
-                    .linearVelocity(m_velocity.mut_replace(rightVelocity, MetersPerSecond))
+                    .linearPosition(m_distance.mut_replace(-rightEncoderMeters, Meters))
+                    .linearVelocity(m_velocity.mut_replace(-rightVelocity, MetersPerSecond))
             },
             this
         )
@@ -121,7 +123,7 @@ class Drivetrain: SubsystemBase() {
             ::resetOdometry,
             ::getCurrentSpeeds,
             ::pidDrive,
-            ReplanningConfig(),
+            ReplanningConfig(false, false),
             {
                 DriverStation.getAlliance().isPresent &&
                 DriverStation.getAlliance().get() == Alliance.Red
@@ -152,12 +154,14 @@ class Drivetrain: SubsystemBase() {
     private fun pidDrive(speeds: ChassisSpeeds) {
         val diffSpeeds = kinematics.toWheelSpeeds(speeds)
         println("Speed: $diffSpeeds")
-        val leftSpeed = -diffSpeeds.leftMetersPerSecond //-leftPid.calculate(leftEncoder.rate, diffSpeeds.leftMetersPerSecond)
-        val rightSpeed = -diffSpeeds.rightMetersPerSecond //-rightPid.calculate(rightEncoder.rate, diffSpeeds.rightMetersPerSecond)
-        println("Left Speed: $leftSpeed")
-        println("Right Speed: $rightSpeed")
+        val leftSpeed = -leftPid.calculate(leftVelocity, diffSpeeds.leftMetersPerSecond)
+        val rightSpeed = -rightPid.calculate(rightVelocity, diffSpeeds.rightMetersPerSecond)
         leftMaster.set(leftSpeed)
         rightMaster.set(rightSpeed)
+        robotDrive.feed()
+        //println("Omega radians: ${speeds.omegaRadiansPerSecond}")
+        //println("Vx Speed: ${speeds.vxMetersPerSecond}")
+        //robotDrive.arcadeDrive(-speeds.vxMetersPerSecond, -speeds.omegaRadiansPerSecond)
     }
 
     fun getPose(): Pose2d = odometry.poseMeters
@@ -165,7 +169,7 @@ class Drivetrain: SubsystemBase() {
     fun getDegrees(): Double = navx2.rotation2d.degrees
 
     fun resetOdometry(pose: Pose2d) {
-        //resetSensors()
+        resetSensors()
         odometry.resetPosition(
             navx2.rotation2d,
             leftEncoderMeters,
@@ -174,10 +178,8 @@ class Drivetrain: SubsystemBase() {
         )
     }
 
-
     fun getWheelSpeeds(): DifferentialDriveWheelSpeeds =
         DifferentialDriveWheelSpeeds(leftVelocity, rightVelocity)
-
 
     fun getCurrentSpeeds(): ChassisSpeeds =
         kinematics.toChassisSpeeds(getWheelSpeeds())
@@ -214,11 +216,14 @@ class Drivetrain: SubsystemBase() {
     }
 
     private fun initDrivetrainPIDController() {
-        val p = 0.24
+        val p = 0.22
+        val i = 0.0
         val d = 0.000000
         leftPid.p = p
+        leftPid.i = i
         leftPid.d = d
         rightPid.p = p
+        rightPid.i = i
         rightPid.d = d
         /*leftPid.p = 0.0018687046632124
         leftPid.i = 0.0

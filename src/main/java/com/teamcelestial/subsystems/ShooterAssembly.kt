@@ -1,6 +1,8 @@
 package com.teamcelestial.subsystems
 
+import com.teamcelestial.Robot
 import com.teamcelestial.system.assembly.ShooterAssemblyState
+import com.teamcelestial.system.shooter.AbsoluteShooterTarget
 import com.teamcelestial.system.shooter.ShooterTarget
 
 object ShooterAssembly {
@@ -55,6 +57,8 @@ object ShooterAssembly {
         when (state) {
             ShooterAssemblyState.idle -> {
                 feeder.setMotor(0.0)
+                //arm.setTargetTheta(93.0)
+                //rotator.setTargetTheta(180.0)
                 shooter.stop() // TOOo: Add arm and rotator idle
                 target = null
             }
@@ -75,7 +79,7 @@ object ShooterAssembly {
                     return update()
                 }
                 val thetaTarget = shooter.start(targetPair!!.first, targetPair!!.second, runMotors = true).theta
-                val armTarget = 130.0
+                val armTarget = 128.0
                 val link1Theta = armTarget - 90.0
                 val link2Theta = thetaTarget + link1Theta
                 val rotatorTarget = rotator.rotatorPreset.defaultTheta - link2Theta
@@ -91,6 +95,8 @@ object ShooterAssembly {
         }
     }
 
+    private var lastRotatorThetaPublish = 0L
+
     fun tick() {
         when(state) {
             ShooterAssemblyState.arming -> {
@@ -101,8 +107,7 @@ object ShooterAssembly {
             }
             ShooterAssemblyState.accelerating -> {
                 if(shooter.atSetpoint()) {
-                    println(System.currentTimeMillis() - shooterSetpointMillis)
-                    if(shooterSetpointLatch) {
+                    if(shooterSetpointLatch && arm.atSetpoint && rotator.atSetpoint) {
                         if(System.currentTimeMillis() - shooterSetpointMillis >= shooterGracePeriodMillis) {
                             state = ShooterAssemblyState.shooting
                             shootingStart = System.currentTimeMillis()
@@ -120,9 +125,18 @@ object ShooterAssembly {
                     update()
                 }
             }
-            else -> {
-                // Do nothing
+            ShooterAssemblyState.wandering -> {
+                val targetAprilTagIdList = listOf(4, 7)
+                val targetTag = Robot.cameraOutput.allTargets.find {
+                    targetAprilTagIdList.contains(it.fiducialId)
+                }
+                if(targetTag != null) {
+                    val x = targetTag.bestCameraToTarget.x
+                    val shooterTarget = AbsoluteShooterTarget(x, 2.08)
+                    registerTarget(shooterTarget)
+                }
             }
+            else -> {}
         }
     }
 
@@ -156,4 +170,6 @@ object ShooterAssembly {
         val result = target!!.getTargetDistanceAndHeightPair(shooter)
         shooter.start(result.first, result.second, runMotors = true, thetaOverride = getShooterAbsTheta())
     }
+
+    fun getState() = state
 }

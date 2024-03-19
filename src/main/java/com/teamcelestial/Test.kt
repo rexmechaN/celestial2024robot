@@ -6,10 +6,14 @@ import com.teamcelestial.math.solver.NumericalSolver
 import com.teamcelestial.math.solver.NumericalSolverMode
 import com.teamcelestial.math.util.toRadians
 import com.teamcelestial.system.shooter.ShooterCalcResult
+import edu.wpi.first.math.controller.ArmFeedforward
+import edu.wpi.first.math.controller.ProfiledPIDController
+import edu.wpi.first.math.trajectory.TrapezoidProfile
 import kotlin.math.*
 
 fun main() {
     start(3.8, 1.5)
+    val feedforward = ArmFeedforward(0.0, 0.0,0.0, 0.0)
 }
 
 fun start(distance: Double, height: Double, runMotors: Boolean = true): ShooterCalcResult {

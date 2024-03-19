@@ -7,5 +7,8 @@ import org.photonvision.targeting.PhotonTrackedTarget
 class CameraOutput(cameraName: String?) {
     private val camera = PhotonCamera(cameraName)
     val bestTarget: PhotonTrackedTarget?
-        get() = camera.latestResult?.bestTarget
+        get() = if(camera.latestResult.hasTargets()) camera.latestResult.bestTarget else null
+
+    val allTargets: List<PhotonTrackedTarget>
+        get() = if(camera.latestResult.hasTargets()) camera.latestResult.getTargets() else listOf()
 }

@@ -4,17 +4,23 @@ import com.teamcelestial.subsystems.*
 import com.teamcelestial.system.shooter.AbsoluteShooterTarget
 import com.teamcelestial.vision.CameraOutput
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.Ultrasonic
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 
 object Robot : TimedRobot() {
 
-    private lateinit var autonomousCommand: Command
+    private val autonomousCommand: Command
+    val cameraOutput = CameraOutput("celestial")
 
-    override fun robotInit() {
+    init {
         RobotContainer
         autonomousCommand = RobotContainer.getAutonomousCommand()
+    }
+
+    override fun robotInit() {
+
     }
 
     override fun robotPeriodic() {
@@ -44,20 +50,9 @@ object Robot : TimedRobot() {
         //ShooterAssembly.wander()
     }
 
-    private val cameraOutput = CameraOutput("celestial")
-
     override fun teleopPeriodic() {
         ShooterAssembly.tick()
-        if(cameraOutput.bestTarget != null) {
-            val x = cameraOutput.bestTarget?.bestCameraToTarget?.x
-            val y = cameraOutput.bestTarget?.bestCameraToTarget?.y
-            val z = cameraOutput.bestTarget?.bestCameraToTarget?.z
-            if(x != null && y != null && z != null) {
-                val target = AbsoluteShooterTarget(x, 2.10
-                )
-                ShooterAssembly.registerTarget(target)
-            }
-        }
+
     }
 
     override fun disabledInit() {}
