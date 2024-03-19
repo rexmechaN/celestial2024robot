@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 
 import kotlin.math.*
 
-class Shooter: SubsystemBase() {
+class Shooter : SubsystemBase() {
     private val leftNeo = CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushless)
     private val rightNeo = CANSparkMax(16, CANSparkLowLevel.MotorType.kBrushless)
 
@@ -44,11 +44,17 @@ class Shooter: SubsystemBase() {
         setMotor(targetRpm)
     }
 
-    fun setTargetRPM(rpm: Double){
+    fun setTargetRPM(rpm: Double) {
         targetRpm = rpm
     }
 
-    fun start(distance: Double, height: Double, runMotors: Boolean = true, thetaOverride: Double? = null): ShooterCalcResult {
+    fun start(
+        distance: Double,
+        height: Double,
+        runMotors: Boolean = true,
+        thetaOverride: Double? = null,
+        rpmOverride: Double? = null,
+    ): ShooterCalcResult {
         startTime = System.currentTimeMillis()
 
         NumericalSolver(
@@ -61,8 +67,8 @@ class Shooter: SubsystemBase() {
         } ?: (2200.0 + distance * 450).also {
             println("RPM target $it")
         }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
-            if(runMotors) targetRpm = it.y
-            if(runMotors) targetTheta = it.x
+            if (runMotors) targetRpm = rpmOverride ?: it.y
+            if (runMotors) targetTheta = it.x
             return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
                 println(shooterCalcResult)
             }
@@ -117,12 +123,17 @@ class Shooter: SubsystemBase() {
         return calculateRpmForVelocity(v + calculateAirResistanceMinusV(v, t))
     }
 
+    var counter = 0L
+
     fun atSetpoint(): Boolean {
-        encoders.forEach {
-            println("Target rpm: $targetRpm")
-            println("velocity: ${it.velocity}")
+        if (counter % 100 == 0L) {
+            encoders.forEach {
+                println("Target rpm: $targetRpm")
+                println("velocity: ${it.velocity}")
+            }
         }
 
+        counter++
         return encoders.all {
             abs(targetRpm + it.velocity) <= 50
         }

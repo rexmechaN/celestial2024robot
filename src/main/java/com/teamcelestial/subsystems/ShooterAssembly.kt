@@ -78,7 +78,7 @@ object ShooterAssembly {
                     state = ShooterAssemblyState.idle
                     return update()
                 }
-                val thetaTarget = shooter.start(targetPair!!.first, targetPair!!.second, runMotors = true).theta
+                val thetaTarget = shooter.start(targetPair!!.first, targetPair!!.second, runMotors = true, rpmOverride = 3000.0).theta
                 val armTarget = 128.0
                 val link1Theta = armTarget - 90.0
                 val link2Theta = thetaTarget + link1Theta
