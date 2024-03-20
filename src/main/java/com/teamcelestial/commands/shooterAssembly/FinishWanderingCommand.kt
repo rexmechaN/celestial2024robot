@@ -19,9 +19,13 @@ class FinishWanderingCommand(
 
     override fun initialize() {}
     override fun execute() {
+        println("FinishWanderingCall")
         if(!done && abs(arm.getTheta() - 180.0) <= 6.0 && abs(rotator.getTheta() - 90.0) <= 6.0) {
+            println("FinishWanderingExecute")
             ShooterAssembly.finishWander()
             done = true
+        } else {
+            println("FinishWanderingAbort! done: $done, thetaDelta: ${abs(arm.getTheta() - 180.0)}, rotatorDelta: abs(rotator.getTheta() - 90.0)")
         }
     }
     override fun isFinished(): Boolean = arm.atSetpoint && rotator.atSetpoint

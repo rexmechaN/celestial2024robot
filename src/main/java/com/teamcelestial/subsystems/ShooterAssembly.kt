@@ -4,6 +4,7 @@ import com.teamcelestial.Robot
 import com.teamcelestial.system.assembly.ShooterAssemblyState
 import com.teamcelestial.system.shooter.AbsoluteShooterTarget
 import com.teamcelestial.system.shooter.ShooterTarget
+import kotlin.math.absoluteValue
 
 object ShooterAssembly {
     private lateinit var arm: Arm
@@ -15,7 +16,7 @@ object ShooterAssembly {
     private var shootingStart = 0L
     private var shooterSetpointMillis = 0L
     private var shooterSetpointLatch = false
-    private const val shooterGracePeriodMillis = 500
+    private const val shooterGracePeriodMillis = 250
     private var target: ShooterTarget? = null
         set(value) {
             field = value
@@ -47,8 +48,8 @@ object ShooterAssembly {
         when (state) {
             ShooterAssemblyState.idle -> {
                 feeder.setMotor(0.0)
-                //arm.setTargetTheta(93.0)
-                //rotator.setTargetTheta(180.0)
+                arm.setTargetTheta(90.0)
+                rotator.setTargetTheta(180.0)
                 shooter.stop() // TOOo: Add arm and rotator idle
                 target = null
             }
@@ -56,7 +57,6 @@ object ShooterAssembly {
                 arm.setTargetTheta(180.0)
                 rotator.setTargetTheta(90.0)
                 shooter.setTargetRPM(3000.0)
-                shooter.stop()
             }
             ShooterAssemblyState.arming -> {
                 if(target == null) {
@@ -117,14 +117,10 @@ object ShooterAssembly {
                 }
             }
             ShooterAssemblyState.wandering -> {
-                val targetAprilTagIdList = listOf(4, 7)
-                val targetTag = Robot.cameraOutput.allTargets.find {
-                    targetAprilTagIdList.contains(it.fiducialId)
-                }
-                if(targetTag != null) {
-                    val x = targetTag.bestCameraToTarget.x
-                    val shooterTarget = AbsoluteShooterTarget(x, 2.08)
-                    registerTarget(shooterTarget)
+                val armThetaDiff = arm.getTheta() - 180
+                if(armThetaDiff.absoluteValue <= 10) {
+                    println("armThetaDiff: $armThetaDiff")
+                    rotator.setTargetTheta(armThetaDiff + 95.0)
                 }
             }
             else -> {}

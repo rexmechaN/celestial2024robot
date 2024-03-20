@@ -9,9 +9,11 @@ import com.teamcelestial.commands.arm.ArmControlCommand
 import com.teamcelestial.commands.custom.TargetShooterCommand
 import com.teamcelestial.commands.drivetrain.RobotDriveCommand
 import com.teamcelestial.commands.drivetrain.TurnToAngleCommand
+import com.teamcelestial.commands.drivetrain.TurnToVisionTargetCommand
 import com.teamcelestial.commands.feeder.FeederForwardCommand
 import com.teamcelestial.commands.feeder.FeederSetterCommand
 import com.teamcelestial.commands.intake.IntakeSetterCommand
+import com.teamcelestial.commands.shooterAssembly.CancelWanderingCommand
 import com.teamcelestial.commands.shooterAssembly.FinishWanderingCommand
 import com.teamcelestial.commands.shooterAssembly.WanderingCommand
 import com.teamcelestial.network.NetworkValue
@@ -34,7 +36,7 @@ object RobotContainer {
 
     private val armPreset = ArmPresetData(
         defaultTheta = 90.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = 295.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to ground.
+        absZeroPointDegrees = 299.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to ground.
     )
 
     private val rotatorPreset = RotatorPresetData(
@@ -57,16 +59,16 @@ object RobotContainer {
     private val angleP = NetworkValue(
         "angleP",
         NetworkValueType.kDouble,
-        0.0
+        0.03
     )
 
     private val angleFeedforward = NetworkValue(
         "angleF",
         NetworkValueType.kDouble,
-        0.0
+        0.1
     )
 
-    val arm = Arm(armPresetData = armPreset,)
+    val arm = Arm(armPresetData = armPreset)
     val rotator = Rotator(rotatorPreset = rotatorPreset)
     private val intake = Intake()
     private val feeder = Feeder()
@@ -161,11 +163,7 @@ object RobotContainer {
         )
 
         commandController.povDown().onTrue(
-            ParallelCommandGroup(
-                RotatorControlCommand(rotator, 180.0),
-                ArmControlCommand(arm, 90.0),
-                ShooterControlCommand(shooter, 0.0)
-            )
+            CancelWanderingCommand(arm, rotator)
         )
 
         commandController.povUp().onTrue(
@@ -215,9 +213,8 @@ object RobotContainer {
                     RotatorControlCommand(rotator, 175.0)
                 ),
                 FeederForwardCommand(feeder, 0.6),
-                ShooterControlCommand(shooter, -500.0)
             )
-        ).onFalse(ShooterControlCommand(shooter, 0.0))
+        )
 
         listOf(desiredRotatorAngle, desiredArmAngle).forEach {
             it.setListener {
@@ -243,16 +240,27 @@ object RobotContainer {
             RepeatCommand(
                 ParallelCommandGroup(
                     IntakeForwardCommand(intake, -0.7),
-                    FeederForwardCommand(feeder, 0.3)
+                    FeederForwardCommand(feeder, 0.3),
+                    ShooterControlCommand(shooter, -500.0)
                 )
             )
-        )
+        ).onFalse(ShooterControlCommand(shooter, 0.0))
 
         commandController.L2()
             .onTrue(WanderingCommand(arm, rotator))
             .onFalse(FinishWanderingCommand(arm, rotator))
 
-        /*listOf(angleP, angleFeedforward).forEach {
+        commandController.circle().whileTrue(
+            TurnToVisionTargetCommand(
+                drivetrain,
+                { Robot.cameraOutput.bestTarget?.yaw ?: 0.0 },
+                { controller.leftY },
+                angleP.value,
+                angleFeedforward.value
+            )
+        )
+
+        listOf(angleP, angleFeedforward).forEach {
             it.setListener {
                 commandController.circle().whileTrue(
                     TurnToVisionTargetCommand(
@@ -264,7 +272,7 @@ object RobotContainer {
                     )
                 )
             }
-        }*/
+        }
 
         /*commandController.circle()
             .onTrue(ShooterControlCommand(shooter, 4500.0))
@@ -272,6 +280,6 @@ object RobotContainer {
     }
 
     fun getAutonomousCommand(): Command {
-        return PathPlannerAuto("1 Note")
+        return PathPlannerAuto("3 Note")
     }
 }

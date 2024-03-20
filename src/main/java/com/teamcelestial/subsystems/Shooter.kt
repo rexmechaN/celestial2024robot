@@ -4,6 +4,8 @@ import com.revrobotics.*
 import com.teamcelestial.math.solver.NumericalSolver
 import com.teamcelestial.math.solver.NumericalSolverMode
 import com.teamcelestial.math.util.toRadians
+import com.teamcelestial.network.NetworkValue
+import com.teamcelestial.network.NetworkValueType
 import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.shooter.ShooterCalcResult
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -37,6 +39,12 @@ class Shooter : SubsystemBase() {
     private var lastRpmPublish = 0L
     private val ballWeight = 0.230
     private val ballFinalSpeedTarget = 0.2
+    private val inertiaMultiplier = NetworkValue<Double>("inertia_k", NetworkValueType.kDouble, 0.98)
+    private val airResistanceMultiplierValue = NetworkValue<Double>("air_resistance_k", NetworkValueType.kDouble, 1.0)
+    private val distanceUnitRpm = NetworkValue<Double>("dist_rpm_k", NetworkValueType.kDouble, 650.0)
+
+    private var airResistanceMultiplier = 1.0
+    private var distRpm = 650.0
 
     override fun periodic() {
         tick()
@@ -62,6 +70,13 @@ class Shooter : SubsystemBase() {
         rpmOverride: Double? = null,
     ): ShooterCalcResult {
         startTime = System.currentTimeMillis()
+        try {
+            totalInertia = baseInertia * inertiaMultiplier.value
+            distRpm = distanceUnitRpm.value
+            airResistanceMultiplier = airResistanceMultiplierValue.value
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         NumericalSolver(
             5..90,
@@ -70,7 +85,7 @@ class Shooter : SubsystemBase() {
             calculateRpm(distance, height, it)
         }.solveFor(min(4800.0, thetaOverride?.let {
             calculateRpm(distance, height, it)
-        } ?: (2200.0 + distance * 450).also {
+        } ?: (2200.0 + distance * distRpm).also {
             println("RPM target $it")
         }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
             if (runMotors) targetRpm = rpmOverride ?: it.y
@@ -91,7 +106,7 @@ class Shooter : SubsystemBase() {
     }
 
     private fun calculateAirResistanceMinusV(speed: Double, time: Double): Double {
-        return (speed.pow(2) * 1.0 * 0.01208955 / ballWeight) * time
+        return (speed.pow(2) * airResistanceMultiplier * 0.01208955 / ballWeight) * time
     }
 
     private fun calculateRpmForVelocity(velocity: Double): Double {
@@ -102,7 +117,9 @@ class Shooter : SubsystemBase() {
     private val inertiaDisc1 = 2.125 * 0.0001
     private val inertiaDisc2 = 1.5 * 0.0001
 
-    private val totalInertia = ((2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)) * 0.96
+    private var baseInertia = ((2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)) * 1.0
+
+    private var totalInertia = ((2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)) * 1.0
 
     private val rateOfRpmRetention = 0.84
     private fun calculateRpmForEnergyTarget(energyTarget: Double): Double {

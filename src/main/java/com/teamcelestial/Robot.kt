@@ -19,9 +19,10 @@ object Robot : TimedRobot() {
         autonomousCommand = RobotContainer.getAutonomousCommand()
     }
 
-    override fun robotInit() {
+    override fun robotInit() {}
 
-    }
+
+    var counter = 0L
 
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
@@ -29,6 +30,20 @@ object Robot : TimedRobot() {
             val visionTarget = RelativeShooterTarget(cameraOutput.bestTarget!!.y, cameraOutput.bestTarget!!.z, 25.0)
             println(visionTarget.getTargetDistanceAndHeightPair(shooter))
         }*/
+
+
+        val targetAprilTagIdList = listOf(4, 7)
+        val targetTag = cameraOutput.bestTarget
+        if(targetTag != null) {
+            val x = targetTag.bestCameraToTarget.x
+            val shooterTarget = AbsoluteShooterTarget(x, 2.08)
+            if(counter % 100 == 0L) println(targetTag)
+            ShooterAssembly.registerTarget(shooterTarget)
+        }
+
+
+        counter++
+
         SmartDashboard.putNumber("Shooter Abs Theta", ShooterAssembly.getShooterAbsTheta())
     }
 

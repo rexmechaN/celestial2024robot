@@ -27,11 +27,12 @@ class TurnToVisionTargetCommand(
     }
 
     override fun initialize() {
+        SmartDashboard.putNumber("Angle AprilTag", targetAngleSupplier())
     }
 
     override fun execute() {
-        //println(targetAngleSupplier())
-        val x = angularPid.calculate(targetAngleSupplier(), 0.0) + feedforward
+        val pidVal = angularPid.calculate(targetAngleSupplier(), 0.0)
+        val x = pidVal + (feedforward * pidVal.sign)
         val output = min(abs(x), 0.7) * -x.sign
         drivetrain.drive(output, forwardSupplier())
     }
