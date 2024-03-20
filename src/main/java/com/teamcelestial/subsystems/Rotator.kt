@@ -67,14 +67,10 @@ class Rotator(
     }
 
     private fun tick() {
-        val c1 = System.currentTimeMillis()
         updateTheta()
         checkAvailability()
-        val c2 = System.currentTimeMillis()
         updateOutput()
-        val c3 = System.currentTimeMillis()
         updateMotors()
-        val c4 = System.currentTimeMillis()
         SmartDashboard.putNumber("Rotator PID-P:", pidController.p)
         SmartDashboard.putNumber("Rotator PID-I:", pidController.i)
         SmartDashboard.putNumber("Rotator PID-D:", pidController.d)

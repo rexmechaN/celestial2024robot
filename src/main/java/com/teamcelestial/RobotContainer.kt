@@ -145,6 +145,11 @@ object RobotContainer {
                 arm.availabilityProvider
             )
         )
+        shooter.registerDeploymentAvailabilityDependency(
+            SubsystemCoherenceDependency(
+                arm.availabilityProvider
+            )
+        )
     }
 
     private fun configureBindings() {

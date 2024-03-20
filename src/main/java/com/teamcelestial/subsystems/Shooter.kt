@@ -4,6 +4,7 @@ import com.revrobotics.*
 import com.teamcelestial.math.solver.NumericalSolver
 import com.teamcelestial.math.solver.NumericalSolverMode
 import com.teamcelestial.math.util.toRadians
+import com.teamcelestial.system.coherence.SubsystemCoherenceDependency
 import com.teamcelestial.system.shooter.ShooterCalcResult
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
@@ -16,6 +17,7 @@ class Shooter : SubsystemBase() {
     private val leftPid = leftNeo.pidController
     private val rightPid = rightNeo.pidController
     private val pidControllers = listOf(leftPid, rightPid)
+    private var deploymentAvailabilityDependency: SubsystemCoherenceDependency? = null
 
     private val encoders = listOf(
         leftNeo.getEncoder(),
@@ -41,7 +43,11 @@ class Shooter : SubsystemBase() {
     }
 
     private fun tick() {
-        setMotor(targetRpm)
+        setMotor(deploymentAvailabilityDependency?.takeIf {
+            it.isReady()
+        }?.let {
+            targetRpm
+        } ?: 0.0)
     }
 
     fun setTargetRPM(rpm: Double) {
@@ -135,7 +141,7 @@ class Shooter : SubsystemBase() {
 
         counter++
         return encoders.all {
-            abs(targetRpm + it.velocity) <= 50
+            abs(targetRpm - abs(it.velocity)) <= 50
         }
     }
 
@@ -161,5 +167,9 @@ class Shooter : SubsystemBase() {
         controller.setIZone(kIz)
         controller.setFF(kFF)
         controller.setOutputRange(kMinOutput, kMaxOutput)
+    }
+
+    fun registerDeploymentAvailabilityDependency(dependency: SubsystemCoherenceDependency) {
+        deploymentAvailabilityDependency = dependency
     }
 }
