@@ -181,7 +181,7 @@ object RobotContainer {
 
         commandController.circle().whileTrue(
             rotator.runOnce {
-                rotator.setTargetTheta(rotator.getTheta() - 0.005)
+                rotator.setTargetTheta(rotator.getTheta() + 0.005)
             }
         )
 
