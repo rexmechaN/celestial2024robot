@@ -12,7 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile
 import kotlin.math.*
 
 fun main() {
-    start(3.5, 2.09)
+    start(1.5, 2.09, thetaOverride = 30.0)
     val feedforward = ArmFeedforward(0.0, 0.0,0.0, 0.0)
 }
 
@@ -40,7 +40,7 @@ fun start(
     startTime = System.currentTimeMillis()
 
     NumericalSolver(
-        5..90,
+        5..89,
         0.5
     ) {
         calculateRpm(distance, height, it)
@@ -48,7 +48,11 @@ fun start(
         calculateRpm(distance, height, it)
     } ?: (4000.0 + distance * distRpm).also {
         println("RPM target $it")
-    }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.1).let {
+    }).let {
+           if(it.isNaN()) {
+               5000.0
+           } else it
+    }, solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.1).let {
         if (runMotors) targetRpm = rpmOverride ?: it.y
         if (runMotors) targetTheta = it.x
         return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
