@@ -40,16 +40,6 @@ object ShooterAssembly {
         return arm.getTheta() - 90.0
     }
 
-    fun wander() {
-        state = ShooterAssemblyState.wandering
-        update()
-    }
-
-    fun cancel() {
-        state = ShooterAssemblyState.wandering
-        update()
-    }
-
 
     fun update() {
         arm.resetIntegrator()
@@ -65,6 +55,7 @@ object ShooterAssembly {
             ShooterAssemblyState.wandering -> {
                 arm.setTargetTheta(180.0)
                 rotator.setTargetTheta(90.0)
+                shooter.setTargetRPM(3000.0)
                 shooter.stop()
             }
             ShooterAssemblyState.arming -> {
@@ -120,7 +111,7 @@ object ShooterAssembly {
                 shooterSetpointLatch = shooter.atSetpoint()
             }
             ShooterAssemblyState.shooting -> {
-                if(System.currentTimeMillis() - shootingStart >= 1500) {
+                if(System.currentTimeMillis() - shootingStart >= 1200) {
                     state = ShooterAssemblyState.idle
                     update()
                 }
