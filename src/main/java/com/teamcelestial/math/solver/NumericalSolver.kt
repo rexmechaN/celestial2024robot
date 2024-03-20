@@ -18,7 +18,15 @@ class NumericalSolver(
             test(current).let {value ->
                 (value - target).let {
                     val toleratedError = if(error != Double.MAX_VALUE) { error - toleranceRate } else Double.MAX_VALUE
-                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM && toleratedError != Double.MAX_VALUE && toleratedError > 0 && it - tolerance <= 0) return SolverResult(current, value)
+                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM && toleratedError != Double.MAX_VALUE && toleratedError > 0 && it - tolerance <= 0 && it < error) {
+                        best = current
+                        bestValue = value
+                        error = it
+                    }
+                    if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM && toleratedError < 0 && error < it) {
+                        return SolverResult(best, bestValue)
+
+                    }
                     if(solverMode == NumericalSolverMode.A_PLUS_PARABOLIC_MAXIMUM && toleratedError != Double.MAX_VALUE && toleratedError < 0 && it - tolerance >= 0) return SolverResult(current, value)
                     if (it.absoluteValue < error.absoluteValue) {
                         best = current

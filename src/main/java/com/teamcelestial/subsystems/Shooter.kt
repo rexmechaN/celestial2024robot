@@ -40,10 +40,10 @@ class Shooter : SubsystemBase() {
     private val ballWeight = 0.230
     private val ballFinalSpeedTarget = 0.2
     private val inertiaMultiplier = NetworkValue<Double>("inertia_k", NetworkValueType.kDouble, 0.98)
-    private val airResistanceMultiplierValue = NetworkValue<Double>("air_resistance_k", NetworkValueType.kDouble, 1.0)
+    private val airResistanceMultiplierValue = NetworkValue<Double>("air_resistance_k", NetworkValueType.kDouble, 0.75)
     private val distanceUnitRpm = NetworkValue<Double>("dist_rpm_k", NetworkValueType.kDouble, 650.0)
 
-    private var airResistanceMultiplier = 1.0
+    private var airResistanceMultiplier = 0.75
     private var distRpm = 650.0
 
     override fun periodic() {
@@ -85,9 +85,9 @@ class Shooter : SubsystemBase() {
             calculateRpm(distance, height, it)
         }.solveFor(min(4800.0, thetaOverride?.let {
             calculateRpm(distance, height, it)
-        } ?: (2200.0 + distance * distRpm).also {
+        } ?: (3400.0 + distance * distRpm).also {
             println("RPM target $it")
-        }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.05).let {
+        }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.1).let {
             if (runMotors) targetRpm = rpmOverride ?: it.y
             if (runMotors) targetTheta = it.x
             return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
@@ -121,7 +121,7 @@ class Shooter : SubsystemBase() {
 
     private var totalInertia = ((2 * churroInertia) + (6 * inertiaDisc1) + (6 * inertiaDisc2)) * 1.0
 
-    private val rateOfRpmRetention = 0.84
+    private val rateOfRpmRetention = 0.7
     private fun calculateRpmForEnergyTarget(energyTarget: Double): Double {
         // Energy is not fully transferred from the flywheel, rateOfRpmRetention is the rate of RPM conserved
         return sqrt((2 * energyTarget) / (totalInertia * (1 - rateOfRpmRetention))) * 60 / (2 * Math.PI)
