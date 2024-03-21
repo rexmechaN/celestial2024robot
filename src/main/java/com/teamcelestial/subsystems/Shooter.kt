@@ -85,10 +85,8 @@ class Shooter : SubsystemBase() {
             calculateRpm(distance, height, it)
         }.solveFor(min(4800.0, thetaOverride?.let {
             calculateRpm(distance, height, it)
-        } ?: (3400.0 + distance * distRpm).also {
-            println("RPM target $it")
-        }), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.1).let {
-            if (runMotors) targetRpm = rpmOverride ?: it.y
+        } ?: (3400.0 + distance * distRpm)), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.1).let {
+            if (runMotors) setTargetRPM(rpmOverride ?: it.y)
             if (runMotors) targetTheta = it.x
             return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
                 println(shooterCalcResult)
@@ -101,8 +99,7 @@ class Shooter : SubsystemBase() {
     }
 
     fun stop() {
-        targetRpm = 0.0
-        setMotor(targetRpm)
+        setTargetRPM(0.0)
     }
 
     private fun calculateAirResistanceMinusV(speed: Double, time: Double): Double {
@@ -131,7 +128,6 @@ class Shooter : SubsystemBase() {
         if (reference == rpm) return
         reference = rpm
         println("Set motor: $rpm")
-        println("motor power ${leftNeo.get()}")
         pidControllers.forEach {
             it.setReference(-rpm, CANSparkBase.ControlType.kVelocity)
         }
@@ -150,10 +146,7 @@ class Shooter : SubsystemBase() {
 
     fun atSetpoint(): Boolean {
         if (counter % 100 == 0L) {
-            encoders.forEach {
-                println("Target rpm: $targetRpm")
-                println("velocity: ${it.velocity}")
-            }
+
         }
 
         counter++

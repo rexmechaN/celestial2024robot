@@ -6,7 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command
 
 class FeederForwardCommand(
     private val feeder: Feeder,
-    private val power: Double
+    private val power: Double,
+    private val isTakingNote: Boolean = false
 ) : Command() {
 
     init {
@@ -16,7 +17,7 @@ class FeederForwardCommand(
     override fun initialize() {}
 
     override fun execute() {
-        feeder.setMotor(power)
+        feeder.setMotor(power, isTakingNote)
     }
 
     override fun isFinished(): Boolean = false

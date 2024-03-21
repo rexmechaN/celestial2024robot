@@ -119,8 +119,7 @@ object ShooterAssembly {
             ShooterAssemblyState.wandering -> {
                 val armThetaDiff = arm.getTheta() - 180
                 if(armThetaDiff.absoluteValue <= 10) {
-                    println("armThetaDiff: $armThetaDiff")
-                    rotator.setTargetTheta(armThetaDiff + 95.0)
+                    rotator.setTargetTheta(armThetaDiff + 90.0)
                 }
             }
             else -> {}

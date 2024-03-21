@@ -36,12 +36,12 @@ object RobotContainer {
 
     private val armPreset = ArmPresetData(
         defaultTheta = 90.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = 299.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to ground.
+        absZeroPointDegrees = 294.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to ground.
     )
 
     private val rotatorPreset = RotatorPresetData(
         defaultTheta = 180.0, //TODO: The default theta, target angle when robot starts
-        absZeroPointDegrees = 112.0 - 54.0 - 47.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
+        absZeroPointDegrees = 112.0 - 54.0 - 39.0 //TODO: The absolute zero point of the arm in encoder units. Must be parallel to arm.
     )
 
     private val desiredRotatorAngle = NetworkValue<Double>(
@@ -128,7 +128,7 @@ object RobotContainer {
                     feeder,
                     155.0,
                     55.0,
-                    4000.0
+                    500.0
                 ),
                 ParallelCommandGroup(
                     RotatorControlCommand(rotator, 180.0, 45.0),
@@ -166,24 +166,24 @@ object RobotContainer {
             CancelWanderingCommand(arm, rotator)
         )
 
-        commandController.povUp().onTrue(
+        commandController.povLeft().onTrue(
             ParallelCommandGroup(
                 ArmControlCommand(arm, 180.0),
                 RotatorControlCommand(rotator, 180.0)
             )
         )
 
-        commandController.cross().whileTrue(
+        /*commandController.cross().whileTrue(
             rotator.runOnce {
-                rotator.setTargetTheta(rotator.getTheta() - 0.005)
+                rotator.setTargetTheta(rotator.getTheta() - 0.05)
             }
         )
 
         commandController.circle().whileTrue(
             rotator.runOnce {
-                rotator.setTargetTheta(rotator.getTheta() + 0.005)
+                rotator.setTargetTheta(rotator.getTheta() + 0.05)
             }
-        )
+        )*/
 
         commandController.triangle().onTrue(
             SequentialCommandGroup(
@@ -206,32 +206,18 @@ object RobotContainer {
             TurnToAngleCommand(drivetrain, 180.0)
         )
 
-        commandController.povLeft().whileTrue(
-            SequentialCommandGroup(
+        commandController.povUp().onTrue(
                 ParallelCommandGroup(
-                    ArmControlCommand(arm, 190.0),
-                    RotatorControlCommand(rotator, 175.0)
-                ),
-                FeederForwardCommand(feeder, 0.6),
-            )
-        )
-
-        listOf(desiredRotatorAngle, desiredArmAngle).forEach {
-            it.setListener {
-                commandController.povLeft().onTrue(
-                    ParallelCommandGroup(
-                        ArmControlCommand(arm, desiredArmAngle.value),
-                        RotatorControlCommand(rotator, desiredRotatorAngle.value)
-                    )
+                    ArmControlCommand(arm, 150.0),
+                    RotatorControlCommand(rotator, 230.0)
                 )
-            }
-        }
+        )
 
         commandController.L1().whileTrue(
             RepeatCommand(
                 ParallelCommandGroup(
                     IntakeForwardCommand(intake, 0.7),
-                    FeederForwardCommand(feeder, -0.3)
+                    FeederForwardCommand(feeder, -0.3, true)
                 )
             )
         )
@@ -260,7 +246,7 @@ object RobotContainer {
             )
         )
 
-        listOf(angleP, angleFeedforward).forEach {
+        /*listOf(angleP, angleFeedforward).forEach {
             it.setListener {
                 commandController.circle().whileTrue(
                     TurnToVisionTargetCommand(
@@ -272,7 +258,7 @@ object RobotContainer {
                     )
                 )
             }
-        }
+        }*/
 
         /*commandController.circle()
             .onTrue(ShooterControlCommand(shooter, 4500.0))
@@ -280,6 +266,6 @@ object RobotContainer {
     }
 
     fun getAutonomousCommand(): Command {
-        return PathPlannerAuto("3 Note")
+        return PathPlannerAuto("1 Note")
     }
 }

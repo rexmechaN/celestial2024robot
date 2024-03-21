@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 3.997690904472718,
-        "y": 1.4646131110444047
+        "x": 3.8498661612707847,
+        "y": 1.615425055537053
       },
       "prevControl": {
-        "x": 3.0772423125145902,
-        "y": 1.69962126218265
+        "x": 3.0001817767895274,
+        "y": 2.040267247777682
       },
       "nextControl": {
-        "x": 4.8745930219133164,
-        "y": 1.2407232087191458
+        "x": 4.672264371362376,
+        "y": 1.2042259504912576
       },
       "isLocked": false,
       "linkedName": null
@@ -36,8 +36,8 @@
         "y": 0.8116008959290657
       },
       "prevControl": {
-        "x": 5.9574175075622895,
-        "y": 0.5037522802318348
+        "x": 5.935233051145888,
+        "y": 0.6314843398917571
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,25 +46,7 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [
-    {
-      "name": "Run Intake",
-      "waypointRelativePos": 1.7,
-      "command": {
-        "type": "sequential",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "takeNote"
-              }
-            }
-          ]
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

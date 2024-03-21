@@ -22,7 +22,7 @@ object Robot : TimedRobot() {
     override fun robotInit() {}
 
 
-    var counter = 0L
+    private var counter = 0L
 
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
@@ -32,15 +32,16 @@ object Robot : TimedRobot() {
         }*/
 
 
-        val targetAprilTagIdList = listOf(4, 7)
-        val targetTag = cameraOutput.bestTarget
+        val targetAprilTagIdList = listOf(4, 7, 16)
+        val targetTag = cameraOutput.allTargets.find {
+            targetAprilTagIdList.contains(it.fiducialId)
+        }
         if(targetTag != null) {
             val x = targetTag.bestCameraToTarget.x
             val shooterTarget = AbsoluteShooterTarget(x, 2.08)
             if(counter % 100 == 0L) println(targetTag)
             ShooterAssembly.registerTarget(shooterTarget)
         }
-
 
         counter++
 
