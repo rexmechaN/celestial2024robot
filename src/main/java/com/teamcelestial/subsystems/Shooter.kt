@@ -3,6 +3,7 @@ package com.teamcelestial.subsystems
 import com.revrobotics.*
 import com.teamcelestial.math.solver.NumericalSolver
 import com.teamcelestial.math.solver.NumericalSolverMode
+import com.teamcelestial.math.solver.SolverResult
 import com.teamcelestial.math.util.toRadians
 import com.teamcelestial.network.NetworkValue
 import com.teamcelestial.network.NetworkValueType
@@ -86,6 +87,11 @@ class Shooter : SubsystemBase() {
         }.solveFor(min(4800.0, thetaOverride?.let {
             calculateRpm(distance, height, it)
         } ?: (3400.0 + distance * distRpm)), solverMode = NumericalSolverMode.A_PLUS_PARABOLIC_MINIMUM, toleranceRate = 0.1).let {
+            SolverResult(
+                x = it.x,
+                y = min(5000.0, it.y)
+            )
+        }.let {
             if (runMotors) setTargetRPM(rpmOverride ?: it.y)
             if (runMotors) targetTheta = it.x
             return ShooterCalcResult(rpm = it.y, theta = it.x).also { shooterCalcResult ->
